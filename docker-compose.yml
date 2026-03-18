@@ -1,0 +1,55 @@
+services:
+  backend:
+    init: true
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    working_dir: /app
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:${BACKEND_PORT}:8000"
+    volumes:
+      - "${BACKEND_DATA_DIR:-./docker-data/backend/data}:/app/storage/data"
+      - "${BACKEND_UPLOADS_DIR:-./docker-data/backend/uploads}:/app/storage/uploads"
+      - "${BACKEND_LOGS_DIR:-./docker-data/backend/logs}:/app/storage/logs"
+      - "${BACKEND_REPORTS_DIR:-./docker-data/backend/reports}:/app/storage/reports"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5).read()",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - app-network
+
+  frontend:
+    init: true
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: "${FRONTEND_VITE_API_BASE_URL}"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT}:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: "${COMPOSE_PROJECT_NAME}-network"

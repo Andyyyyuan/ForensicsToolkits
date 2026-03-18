@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+backend/.env
+backend/storage
+docker-data
+frontend/dist
+frontend/node_modules
+__pycache__
+Sample
+部署
