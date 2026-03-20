@@ -20,4 +20,4 @@ Thumbs.db
 .idea/
 .vscode/
 docker-data/
-部署
+deploy.sh
