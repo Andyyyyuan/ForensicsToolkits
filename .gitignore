@@ -20,4 +20,6 @@ Thumbs.db
 .idea/
 .vscode/
 docker-data/
+backend/vendor/hashcat/
 deploy.sh
+.claude

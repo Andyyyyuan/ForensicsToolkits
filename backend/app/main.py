@@ -29,6 +29,29 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _dedupe_keep_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        normalized = item.strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(normalized)
+    return result
+
+
+def _common_local_origins() -> list[str]:
+    frontend_port = os.getenv("FRONTEND_PORT", "8080").strip() or "8080"
+    candidates = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        f"http://localhost:{frontend_port}",
+        f"http://127.0.0.1:{frontend_port}",
+    ]
+    return _dedupe_keep_order(candidates)
+
+
 def _configure_cors(app: FastAPI) -> None:
     app_env = os.getenv("APP_ENV", "development").strip().lower()
     allow_all = _env_flag("CORS_ALLOW_ALL", default=app_env == "development")
@@ -45,10 +68,9 @@ def _configure_cors(app: FastAPI) -> None:
         return
 
     if not allow_origins:
-        allow_origins = [
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-        ]
+        allow_origins = _common_local_origins()
+    else:
+        allow_origins = _dedupe_keep_order([*allow_origins, *_common_local_origins()])
 
     app.add_middleware(
         CORSMiddleware,

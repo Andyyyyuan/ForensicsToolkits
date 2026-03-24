@@ -9,8 +9,8 @@ from app.tools.registry import tool_registry
 class HashcatGUITool(BaseTool):
     tool_id = "hashcat_gui"
     name = "Hashcat GUI"
-    description = "以图形化方式启动 Hashcat 字典或掩码任务。"
-    input_types = [".txt", ".hash"]
+    description = "以图形化方式启动 Hashcat 字典、组合、掩码与混合任务。"
+    input_types = [".txt", ".hash", ".dict", ".lst", ".wordlist"]
 
     async def run(self, file_path: str | Path, params: dict[str, Any] | None = None) -> dict[str, Any]:
         return hashcat_service.start_task(hash_file_path=str(file_path), params=params or {})

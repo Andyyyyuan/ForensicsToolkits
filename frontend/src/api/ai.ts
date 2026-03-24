@@ -1,13 +1,14 @@
 import { api, apiBaseUrl } from './logParser'
-import type { AiStatusResponse, ToolAiRequest, ToolAiResponse, ToolAiStreamEvent } from '../types/ai'
+import type { AiStatusResponse, ToolAiRequest, ToolAiStreamEvent } from '../types/ai'
+
+function yieldToBrowser(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0)
+  })
+}
 
 export async function getAiStatus(): Promise<AiStatusResponse> {
   const { data } = await api.get<AiStatusResponse>('/tools/ai/status')
-  return data
-}
-
-export async function runToolAi(payload: ToolAiRequest): Promise<ToolAiResponse> {
-  const { data } = await api.post<ToolAiResponse>('/tools/ai/assist', payload)
   return data
 }
 
@@ -19,10 +20,12 @@ export async function streamToolAi(
 ): Promise<void> {
   const response = await fetch(`${apiBaseUrl}/tools/ai/assist/stream`, {
     method: 'POST',
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
-      Accept: 'application/x-ndjson',
+      Accept: 'application/x-ndjson, text/event-stream',
       'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
     },
     body: JSON.stringify(payload),
   })
@@ -62,6 +65,7 @@ export async function streamToolAi(
         continue
       }
       handlers.onEvent(JSON.parse(trimmed) as ToolAiStreamEvent)
+      await yieldToBrowser()
     }
   }
 

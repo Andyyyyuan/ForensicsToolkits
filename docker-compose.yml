@@ -17,6 +17,8 @@ services:
       - "${BACKEND_UPLOADS_DIR:-./docker-data/backend/uploads}:/app/storage/uploads"
       - "${BACKEND_LOGS_DIR:-./docker-data/backend/logs}:/app/storage/logs"
       - "${BACKEND_REPORTS_DIR:-./docker-data/backend/reports}:/app/storage/reports"
+      - "${BACKEND_HASHCAT_BUNDLE_DIR:-./docker-data/backend/hashcat-bundle}:/opt/hashcat:ro"
+      - "${BACKEND_HASHCAT_WORDLISTS_DIR:-./docker-data/backend/hashcat-wordlists}:/opt/hashcat-wordlists:ro"
     healthcheck:
       test:
         [

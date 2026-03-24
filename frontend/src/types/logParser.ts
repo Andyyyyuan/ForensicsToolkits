@@ -66,10 +66,6 @@ export interface LogSearchResponse {
   matches: LogSearchMatch[]
 }
 
-export interface AIAnalysisRequest {
-  question: string
-}
-
 export interface FindingItem {
   title: string
   evidence: string[]
@@ -82,17 +78,4 @@ export interface AIAnalysisResult {
   findings: FindingItem[]
   timeline_summary: string[]
   recommendations: string[]
-}
-
-export interface AIAnalysisResponse {
-  file_id: string
-  analysis_source: 'ai' | 'fallback'
-  analysis: AIAnalysisResult
-}
-
-export interface LogParserStatusResponse {
-  ai_configured: boolean
-  ai_base_url: string | null
-  ai_chat_model: string | null
-  ai_reasoner_model: string | null
 }

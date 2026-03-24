@@ -122,13 +122,25 @@ export interface ToolRunResponse {
   result: Record<string, unknown>
 }
 
+export type HashcatAttackMode = 0 | 1 | 3 | 6 | 7
+
 export interface HashcatTaskRequest {
   hash_mode: number
-  attack_mode: 0 | 3
+  attack_mode: HashcatAttackMode
   wordlist_path?: string
+  wordlist_file_id?: string
+  secondary_wordlist_path?: string
+  secondary_wordlist_file_id?: string
   mask?: string
   extra_args: string[]
   session_name?: string
+}
+
+export interface HashcatHashMode {
+  mode: number
+  name: string
+  category: string
+  label: string
 }
 
 export interface HashcatTaskStatus {
@@ -137,6 +149,14 @@ export interface HashcatTaskStatus {
   disabled_message: string | null
   configured: boolean
   binary_path: string | null
+  binary_source: string | null
+  detected_platform: string
+  bundle_dir: string | null
+  bundled_binary_path: string | null
+  wordlists_dir: string | null
+  runtime_dir: string | null
+  default_wordlist_path: string | null
+  default_wordlist_name: string | null
   running: boolean
   task_id: string | null
   pid: number | null
@@ -145,13 +165,16 @@ export interface HashcatTaskStatus {
   finished_at: string | null
   exit_code: number | null
   hash_file: string | null
+  result_file: string | null
+  result_lines: string[]
   output_tail: string[]
 }
 
 export interface HashcatAIAssistResult {
   hash_mode: number
-  attack_mode: 0 | 3
+  attack_mode: HashcatAttackMode
   wordlist_path: string | null
+  secondary_wordlist_path: string | null
   mask: string | null
   session_name: string | null
   extra_args: string[]

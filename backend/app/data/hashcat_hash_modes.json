@@ -1,0 +1,3494 @@
+[
+  {
+    "mode": 24600,
+    "name": "SQLCipher",
+    "category": "Application Database",
+    "label": "24600 | SQLCipher | Application Database"
+  },
+  {
+    "mode": 31400,
+    "name": "SecureCRT MasterPassphrase v2",
+    "category": "Application Database",
+    "label": "31400 | SecureCRT MasterPassphrase v2 | Application Database"
+  },
+  {
+    "mode": 11600,
+    "name": "7-Zip",
+    "category": "Archive",
+    "label": "11600 | 7-Zip | Archive"
+  },
+  {
+    "mode": 12500,
+    "name": "RAR3-hp",
+    "category": "Archive",
+    "label": "12500 | RAR3-hp | Archive"
+  },
+  {
+    "mode": 13000,
+    "name": "RAR5",
+    "category": "Archive",
+    "label": "13000 | RAR5 | Archive"
+  },
+  {
+    "mode": 13200,
+    "name": "AxCrypt 1",
+    "category": "Archive",
+    "label": "13200 | AxCrypt 1 | Archive"
+  },
+  {
+    "mode": 13300,
+    "name": "AxCrypt 1 in-memory SHA1",
+    "category": "Archive",
+    "label": "13300 | AxCrypt 1 in-memory SHA1 | Archive"
+  },
+  {
+    "mode": 13600,
+    "name": "WinZip",
+    "category": "Archive",
+    "label": "13600 | WinZip | Archive"
+  },
+  {
+    "mode": 14700,
+    "name": "iTunes backup < 10.0",
+    "category": "Archive",
+    "label": "14700 | iTunes backup < 10.0 | Archive"
+  },
+  {
+    "mode": 14800,
+    "name": "iTunes backup >= 10.0",
+    "category": "Archive",
+    "label": "14800 | iTunes backup >= 10.0 | Archive"
+  },
+  {
+    "mode": 17200,
+    "name": "PKZIP (Compressed)",
+    "category": "Archive",
+    "label": "17200 | PKZIP (Compressed) | Archive"
+  },
+  {
+    "mode": 17210,
+    "name": "PKZIP (Uncompressed)",
+    "category": "Archive",
+    "label": "17210 | PKZIP (Uncompressed) | Archive"
+  },
+  {
+    "mode": 17220,
+    "name": "PKZIP (Compressed Multi-File)",
+    "category": "Archive",
+    "label": "17220 | PKZIP (Compressed Multi-File) | Archive"
+  },
+  {
+    "mode": 17225,
+    "name": "PKZIP (Mixed Multi-File)",
+    "category": "Archive",
+    "label": "17225 | PKZIP (Mixed Multi-File) | Archive"
+  },
+  {
+    "mode": 17230,
+    "name": "PKZIP (Mixed Multi-File Checksum-Only)",
+    "category": "Archive",
+    "label": "17230 | PKZIP (Mixed Multi-File Checksum-Only) | Archive"
+  },
+  {
+    "mode": 18900,
+    "name": "Android Backup",
+    "category": "Archive",
+    "label": "18900 | Android Backup | Archive"
+  },
+  {
+    "mode": 20500,
+    "name": "PKZIP Master Key",
+    "category": "Archive",
+    "label": "20500 | PKZIP Master Key | Archive"
+  },
+  {
+    "mode": 20510,
+    "name": "PKZIP Master Key (6 byte optimization)",
+    "category": "Archive",
+    "label": "20510 | PKZIP Master Key (6 byte optimization) | Archive"
+  },
+  {
+    "mode": 23001,
+    "name": "SecureZIP AES-128",
+    "category": "Archive",
+    "label": "23001 | SecureZIP AES-128 | Archive"
+  },
+  {
+    "mode": 23002,
+    "name": "SecureZIP AES-192",
+    "category": "Archive",
+    "label": "23002 | SecureZIP AES-192 | Archive"
+  },
+  {
+    "mode": 23003,
+    "name": "SecureZIP AES-256",
+    "category": "Archive",
+    "label": "23003 | SecureZIP AES-256 | Archive"
+  },
+  {
+    "mode": 23500,
+    "name": "AxCrypt 2 AES-128",
+    "category": "Archive",
+    "label": "23500 | AxCrypt 2 AES-128 | Archive"
+  },
+  {
+    "mode": 23600,
+    "name": "AxCrypt 2 AES-256",
+    "category": "Archive",
+    "label": "23600 | AxCrypt 2 AES-256 | Archive"
+  },
+  {
+    "mode": 23700,
+    "name": "RAR3-p (Uncompressed)",
+    "category": "Archive",
+    "label": "23700 | RAR3-p (Uncompressed) | Archive"
+  },
+  {
+    "mode": 23800,
+    "name": "RAR3-p (Compressed)",
+    "category": "Archive",
+    "label": "23800 | RAR3-p (Compressed) | Archive"
+  },
+  {
+    "mode": 24700,
+    "name": "Stuffit5",
+    "category": "Archive",
+    "label": "24700 | Stuffit5 | Archive"
+  },
+  {
+    "mode": 31200,
+    "name": "Veeam VBK",
+    "category": "Archive",
+    "label": "31200 | Veeam VBK | Archive"
+  },
+  {
+    "mode": 32700,
+    "name": "Kremlin Encrypt 3.0 w/NewDES",
+    "category": "Archive",
+    "label": "32700 | Kremlin Encrypt 3.0 w/NewDES | Archive"
+  },
+  {
+    "mode": 33400,
+    "name": "mega.nz password-protected link (PBKDF2-HMAC-SHA512)",
+    "category": "Archive",
+    "label": "33400 | mega.nz password-protected link (PBKDF2-HMAC-SHA512) | Archive"
+  },
+  {
+    "mode": 11300,
+    "name": "Bitcoin/Litecoin wallet.dat",
+    "category": "Cryptocurrency Wallet",
+    "label": "11300 | Bitcoin/Litecoin wallet.dat | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 12700,
+    "name": "Blockchain, My Wallet",
+    "category": "Cryptocurrency Wallet",
+    "label": "12700 | Blockchain, My Wallet | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 15200,
+    "name": "Blockchain, My Wallet, V2",
+    "category": "Cryptocurrency Wallet",
+    "label": "15200 | Blockchain, My Wallet, V2 | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 15600,
+    "name": "Ethereum Wallet, PBKDF2-HMAC-SHA256",
+    "category": "Cryptocurrency Wallet",
+    "label": "15600 | Ethereum Wallet, PBKDF2-HMAC-SHA256 | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 15700,
+    "name": "Ethereum Wallet, SCRYPT",
+    "category": "Cryptocurrency Wallet",
+    "label": "15700 | Ethereum Wallet, SCRYPT | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 16300,
+    "name": "Ethereum Pre-Sale Wallet, PBKDF2-HMAC-SHA256",
+    "category": "Cryptocurrency Wallet",
+    "label": "16300 | Ethereum Pre-Sale Wallet, PBKDF2-HMAC-SHA256 | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 16600,
+    "name": "Electrum Wallet (Salt-Type 1-3)",
+    "category": "Cryptocurrency Wallet",
+    "label": "16600 | Electrum Wallet (Salt-Type 1-3) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 18800,
+    "name": "Blockchain, My Wallet, Second Password (SHA256)",
+    "category": "Cryptocurrency Wallet",
+    "label": "18800 | Blockchain, My Wallet, Second Password (SHA256) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 21000,
+    "name": "BitShares v0.x - sha512(sha512_bin(pass))",
+    "category": "Cryptocurrency Wallet",
+    "label": "21000 | BitShares v0.x - sha512(sha512_bin(pass)) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 21700,
+    "name": "Electrum Wallet (Salt-Type 4)",
+    "category": "Cryptocurrency Wallet",
+    "label": "21700 | Electrum Wallet (Salt-Type 4) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 21800,
+    "name": "Electrum Wallet (Salt-Type 5)",
+    "category": "Cryptocurrency Wallet",
+    "label": "21800 | Electrum Wallet (Salt-Type 5) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 22500,
+    "name": "MultiBit Classic .key (MD5)",
+    "category": "Cryptocurrency Wallet",
+    "label": "22500 | MultiBit Classic .key (MD5) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 22700,
+    "name": "MultiBit HD (scrypt)",
+    "category": "Cryptocurrency Wallet",
+    "label": "22700 | MultiBit HD (scrypt) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 25500,
+    "name": "Stargazer Stellar Wallet XLM",
+    "category": "Cryptocurrency Wallet",
+    "label": "25500 | Stargazer Stellar Wallet XLM | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 26600,
+    "name": "MetaMask Wallet (needs all data, checks AES-GCM tag)",
+    "category": "Cryptocurrency Wallet",
+    "label": "26600 | MetaMask Wallet (needs all data, checks AES-GCM tag) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 26610,
+    "name": "MetaMask Wallet (short hash, plaintext check)",
+    "category": "Cryptocurrency Wallet",
+    "label": "26610 | MetaMask Wallet (short hash, plaintext check) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 27700,
+    "name": "MultiBit Classic .wallet (scrypt)",
+    "category": "Cryptocurrency Wallet",
+    "label": "27700 | MultiBit Classic .wallet (scrypt) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28200,
+    "name": "Exodus Desktop Wallet (scrypt)",
+    "category": "Cryptocurrency Wallet",
+    "label": "28200 | Exodus Desktop Wallet (scrypt) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28501,
+    "name": "Bitcoin WIF private key (P2PKH), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28501 | Bitcoin WIF private key (P2PKH), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28502,
+    "name": "Bitcoin WIF private key (P2PKH), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28502 | Bitcoin WIF private key (P2PKH), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28503,
+    "name": "Bitcoin WIF private key (P2WPKH, Bech32), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28503 | Bitcoin WIF private key (P2WPKH, Bech32), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28504,
+    "name": "Bitcoin WIF private key (P2WPKH, Bech32), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28504 | Bitcoin WIF private key (P2WPKH, Bech32), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28505,
+    "name": "Bitcoin WIF private key (P2SH(P2WPKH)), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28505 | Bitcoin WIF private key (P2SH(P2WPKH)), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 28506,
+    "name": "Bitcoin WIF private key (P2SH(P2WPKH)), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "28506 | Bitcoin WIF private key (P2SH(P2WPKH)), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 29600,
+    "name": "Terra Station Wallet (AES256-CBC(PBKDF2($pass)))",
+    "category": "Cryptocurrency Wallet",
+    "label": "29600 | Terra Station Wallet (AES256-CBC(PBKDF2($pass))) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 29800,
+    "name": "Bisq .wallet (scrypt)",
+    "category": "Cryptocurrency Wallet",
+    "label": "29800 | Bisq .wallet (scrypt) | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30901,
+    "name": "Bitcoin raw private key (P2PKH), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30901 | Bitcoin raw private key (P2PKH), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30902,
+    "name": "Bitcoin raw private key (P2PKH), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30902 | Bitcoin raw private key (P2PKH), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30903,
+    "name": "Bitcoin raw private key (P2WPKH, Bech32), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30903 | Bitcoin raw private key (P2WPKH, Bech32), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30904,
+    "name": "Bitcoin raw private key (P2WPKH, Bech32), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30904 | Bitcoin raw private key (P2WPKH, Bech32), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30905,
+    "name": "Bitcoin raw private key (P2SH(P2WPKH)), compressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30905 | Bitcoin raw private key (P2SH(P2WPKH)), compressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 30906,
+    "name": "Bitcoin raw private key (P2SH(P2WPKH)), uncompressed",
+    "category": "Cryptocurrency Wallet",
+    "label": "30906 | Bitcoin raw private key (P2SH(P2WPKH)), uncompressed | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 31900,
+    "name": "MetaMask Mobile Wallet",
+    "category": "Cryptocurrency Wallet",
+    "label": "31900 | MetaMask Mobile Wallet | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 32500,
+    "name": "Dogechain.info Wallet",
+    "category": "Cryptocurrency Wallet",
+    "label": "32500 | Dogechain.info Wallet | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 34700,
+    "name": "Blockchain, My Wallet, Legacy Wallets",
+    "category": "Cryptocurrency Wallet",
+    "label": "34700 | Blockchain, My Wallet, Legacy Wallets | Cryptocurrency Wallet"
+  },
+  {
+    "mode": 12,
+    "name": "PostgreSQL",
+    "category": "Database Server",
+    "label": "12 | PostgreSQL | Database Server"
+  },
+  {
+    "mode": 112,
+    "name": "Oracle S: Type (Oracle 11+)",
+    "category": "Database Server",
+    "label": "112 | Oracle S: Type (Oracle 11+) | Database Server"
+  },
+  {
+    "mode": 131,
+    "name": "MSSQL (2000)",
+    "category": "Database Server",
+    "label": "131 | MSSQL (2000) | Database Server"
+  },
+  {
+    "mode": 132,
+    "name": "MSSQL (2005)",
+    "category": "Database Server",
+    "label": "132 | MSSQL (2005) | Database Server"
+  },
+  {
+    "mode": 200,
+    "name": "MySQL323",
+    "category": "Database Server",
+    "label": "200 | MySQL323 | Database Server"
+  },
+  {
+    "mode": 300,
+    "name": "MySQL4.1/MySQL5",
+    "category": "Database Server",
+    "label": "300 | MySQL4.1/MySQL5 | Database Server"
+  },
+  {
+    "mode": 1731,
+    "name": "MSSQL (2012, 2014)",
+    "category": "Database Server",
+    "label": "1731 | MSSQL (2012, 2014) | Database Server"
+  },
+  {
+    "mode": 3100,
+    "name": "Oracle H: Type (Oracle 7+)",
+    "category": "Database Server",
+    "label": "3100 | Oracle H: Type (Oracle 7+) | Database Server"
+  },
+  {
+    "mode": 7401,
+    "name": "MySQL $A$ (sha256crypt)",
+    "category": "Database Server",
+    "label": "7401 | MySQL $A$ (sha256crypt) | Database Server"
+  },
+  {
+    "mode": 8000,
+    "name": "Sybase ASE",
+    "category": "Database Server",
+    "label": "8000 | Sybase ASE | Database Server"
+  },
+  {
+    "mode": 11100,
+    "name": "PostgreSQL CRAM (MD5)",
+    "category": "Database Server",
+    "label": "11100 | PostgreSQL CRAM (MD5) | Database Server"
+  },
+  {
+    "mode": 11200,
+    "name": "MySQL CRAM (SHA1)",
+    "category": "Database Server",
+    "label": "11200 | MySQL CRAM (SHA1) | Database Server"
+  },
+  {
+    "mode": 12300,
+    "name": "Oracle T: Type (Oracle 12+)",
+    "category": "Database Server",
+    "label": "12300 | Oracle T: Type (Oracle 12+) | Database Server"
+  },
+  {
+    "mode": 24100,
+    "name": "MongoDB ServerKey SCRAM-SHA-1",
+    "category": "Database Server",
+    "label": "24100 | MongoDB ServerKey SCRAM-SHA-1 | Database Server"
+  },
+  {
+    "mode": 24200,
+    "name": "MongoDB ServerKey SCRAM-SHA-256",
+    "category": "Database Server",
+    "label": "24200 | MongoDB ServerKey SCRAM-SHA-256 | Database Server"
+  },
+  {
+    "mode": 28600,
+    "name": "PostgreSQL SCRAM-SHA-256",
+    "category": "Database Server",
+    "label": "28600 | PostgreSQL SCRAM-SHA-256 | Database Server"
+  },
+  {
+    "mode": 9400,
+    "name": "MS Office 2007",
+    "category": "Document",
+    "label": "9400 | MS Office 2007 | Document"
+  },
+  {
+    "mode": 9500,
+    "name": "MS Office 2010",
+    "category": "Document",
+    "label": "9500 | MS Office 2010 | Document"
+  },
+  {
+    "mode": 9600,
+    "name": "MS Office 2013",
+    "category": "Document",
+    "label": "9600 | MS Office 2013 | Document"
+  },
+  {
+    "mode": 9700,
+    "name": "MS Office <= 2003 $0/$1, MD5 + RC4",
+    "category": "Document",
+    "label": "9700 | MS Office <= 2003 $0/$1, MD5 + RC4 | Document"
+  },
+  {
+    "mode": 9710,
+    "name": "MS Office <= 2003 $0/$1, MD5 + RC4, collider #1",
+    "category": "Document",
+    "label": "9710 | MS Office <= 2003 $0/$1, MD5 + RC4, collider #1 | Document"
+  },
+  {
+    "mode": 9720,
+    "name": "MS Office <= 2003 $0/$1, MD5 + RC4, collider #2",
+    "category": "Document",
+    "label": "9720 | MS Office <= 2003 $0/$1, MD5 + RC4, collider #2 | Document"
+  },
+  {
+    "mode": 9800,
+    "name": "MS Office <= 2003 $3/$4, SHA1 + RC4",
+    "category": "Document",
+    "label": "9800 | MS Office <= 2003 $3/$4, SHA1 + RC4 | Document"
+  },
+  {
+    "mode": 9810,
+    "name": "MS Office <= 2003 $3, SHA1 + RC4, collider #1",
+    "category": "Document",
+    "label": "9810 | MS Office <= 2003 $3, SHA1 + RC4, collider #1 | Document"
+  },
+  {
+    "mode": 9820,
+    "name": "MS Office <= 2003 $3, SHA1 + RC4, collider #2",
+    "category": "Document",
+    "label": "9820 | MS Office <= 2003 $3, SHA1 + RC4, collider #2 | Document"
+  },
+  {
+    "mode": 10400,
+    "name": "PDF 1.1 - 1.3 (Acrobat 2 - 4)",
+    "category": "Document",
+    "label": "10400 | PDF 1.1 - 1.3 (Acrobat 2 - 4) | Document"
+  },
+  {
+    "mode": 10410,
+    "name": "PDF 1.1 - 1.3 (Acrobat 2 - 4), collider #1",
+    "category": "Document",
+    "label": "10410 | PDF 1.1 - 1.3 (Acrobat 2 - 4), collider #1 | Document"
+  },
+  {
+    "mode": 10420,
+    "name": "PDF 1.1 - 1.3 (Acrobat 2 - 4), collider #2",
+    "category": "Document",
+    "label": "10420 | PDF 1.1 - 1.3 (Acrobat 2 - 4), collider #2 | Document"
+  },
+  {
+    "mode": 10500,
+    "name": "PDF 1.4 - 1.6 (Acrobat 5 - 8)",
+    "category": "Document",
+    "label": "10500 | PDF 1.4 - 1.6 (Acrobat 5 - 8) | Document"
+  },
+  {
+    "mode": 10510,
+    "name": "PDF 1.3 - 1.6 (Acrobat 4 - 8) w/ RC4-40",
+    "category": "Document",
+    "label": "10510 | PDF 1.3 - 1.6 (Acrobat 4 - 8) w/ RC4-40 | Document"
+  },
+  {
+    "mode": 10600,
+    "name": "PDF 1.7 Level 3 (Acrobat 9)",
+    "category": "Document",
+    "label": "10600 | PDF 1.7 Level 3 (Acrobat 9) | Document"
+  },
+  {
+    "mode": 10700,
+    "name": "PDF 1.7 Level 8 (Acrobat 10 - 11)",
+    "category": "Document",
+    "label": "10700 | PDF 1.7 Level 8 (Acrobat 10 - 11) | Document"
+  },
+  {
+    "mode": 16200,
+    "name": "Apple Secure Notes",
+    "category": "Document",
+    "label": "16200 | Apple Secure Notes | Document"
+  },
+  {
+    "mode": 18400,
+    "name": "Open Document Format (ODF) 1.2 (SHA-256, AES)",
+    "category": "Document",
+    "label": "18400 | Open Document Format (ODF) 1.2 (SHA-256, AES) | Document"
+  },
+  {
+    "mode": 18600,
+    "name": "Open Document Format (ODF) 1.1 (SHA-1, Blowfish)",
+    "category": "Document",
+    "label": "18600 | Open Document Format (ODF) 1.1 (SHA-1, Blowfish) | Document"
+  },
+  {
+    "mode": 23300,
+    "name": "Apple iWork",
+    "category": "Document",
+    "label": "23300 | Apple iWork | Document"
+  },
+  {
+    "mode": 25300,
+    "name": "MS Office 2016 - SheetProtection",
+    "category": "Document",
+    "label": "25300 | MS Office 2016 - SheetProtection | Document"
+  },
+  {
+    "mode": 25400,
+    "name": "PDF 1.4 - 1.6 (Acrobat 5 - 8) - user and owner pass",
+    "category": "Document",
+    "label": "25400 | PDF 1.4 - 1.6 (Acrobat 5 - 8) - user and owner pass | Document"
+  },
+  {
+    "mode": 24,
+    "name": "SolarWinds Serv-U",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "24 | SolarWinds Serv-U | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 133,
+    "name": "PeopleSoft",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "133 | PeopleSoft | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 4711,
+    "name": "Huawei sha1(md5($pass).$salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "4711 | Huawei sha1(md5($pass).$salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 7700,
+    "name": "SAP CODVN B (BCODE)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "7700 | SAP CODVN B (BCODE) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 7701,
+    "name": "SAP CODVN B (BCODE) from RFC_READ_TABLE",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "7701 | SAP CODVN B (BCODE) from RFC_READ_TABLE | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 7800,
+    "name": "SAP CODVN F/G (PASSCODE)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "7800 | SAP CODVN F/G (PASSCODE) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 7801,
+    "name": "SAP CODVN F/G (PASSCODE) from RFC_READ_TABLE",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "7801 | SAP CODVN F/G (PASSCODE) from RFC_READ_TABLE | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 8600,
+    "name": "Lotus Notes/Domino 5",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "8600 | Lotus Notes/Domino 5 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 8700,
+    "name": "Lotus Notes/Domino 6",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "8700 | Lotus Notes/Domino 6 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 9100,
+    "name": "Lotus Notes/Domino 8",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "9100 | Lotus Notes/Domino 8 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 10300,
+    "name": "SAP CODVN H (PWDSALTEDHASH) iSSHA-1",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "10300 | SAP CODVN H (PWDSALTEDHASH) iSSHA-1 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 13500,
+    "name": "PeopleSoft PS_TOKEN",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "13500 | PeopleSoft PS_TOKEN | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 20600,
+    "name": "Oracle Transportation Management (SHA256)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "20600 | Oracle Transportation Management (SHA256) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 20711,
+    "name": "AuthMe sha256",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "20711 | AuthMe sha256 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 20712,
+    "name": "RSA Security Analytics / NetWitness (sha256)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "20712 | RSA Security Analytics / NetWitness (sha256) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 21500,
+    "name": "SolarWinds Orion",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "21500 | SolarWinds Orion | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 21501,
+    "name": "SolarWinds Orion v2",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "21501 | SolarWinds Orion v2 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 26200,
+    "name": "OpenEdge Progress Encode",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "26200 | OpenEdge Progress Encode | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32000,
+    "name": "NetIQ SSPR (MD5)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32000 | NetIQ SSPR (MD5) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32010,
+    "name": "NetIQ SSPR (SHA1)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32010 | NetIQ SSPR (SHA1) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32020,
+    "name": "NetIQ SSPR (SHA-1 with Salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32020 | NetIQ SSPR (SHA-1 with Salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32030,
+    "name": "NetIQ SSPR (SHA-256 with Salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32030 | NetIQ SSPR (SHA-256 with Salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32031,
+    "name": "Adobe AEM (SSPR, SHA-256 with Salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32031 | Adobe AEM (SSPR, SHA-256 with Salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32040,
+    "name": "NetIQ SSPR (SHA-512 with Salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32040 | NetIQ SSPR (SHA-512 with Salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32041,
+    "name": "Adobe AEM (SSPR, SHA-512 with Salt)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32041 | Adobe AEM (SSPR, SHA-512 with Salt) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32050,
+    "name": "NetIQ SSPR (PBKDF2WithHmacSHA1)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32050 | NetIQ SSPR (PBKDF2WithHmacSHA1) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32060,
+    "name": "NetIQ SSPR (PBKDF2WithHmacSHA256)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32060 | NetIQ SSPR (PBKDF2WithHmacSHA256) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 32070,
+    "name": "NetIQ SSPR (PBKDF2WithHmacSHA512)",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "32070 | NetIQ SSPR (PBKDF2WithHmacSHA512) | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 35000,
+    "name": "SAP CODVN H (PWDSALTEDHASH) isSHA512",
+    "category": "Enterprise Application Software (EAS)",
+    "label": "35000 | SAP CODVN H (PWDSALTEDHASH) isSHA512 | Enterprise Application Software (EAS)"
+  },
+  {
+    "mode": 101,
+    "name": "nsldap, SHA-1(Base64), Netscape LDAP SHA",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "101 | nsldap, SHA-1(Base64), Netscape LDAP SHA | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 111,
+    "name": "nsldaps, SSHA-1(Base64), Netscape LDAP SSHA",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "111 | nsldaps, SSHA-1(Base64), Netscape LDAP SSHA | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 141,
+    "name": "Episerver 6.x < .NET 4",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "141 | Episerver 6.x < .NET 4 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 1411,
+    "name": "SSHA-256(Base64), LDAP {SSHA256}",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "1411 | SSHA-256(Base64), LDAP {SSHA256} | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 1421,
+    "name": "hMailServer",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "1421 | hMailServer | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 1441,
+    "name": "Episerver 6.x >= .NET 4",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "1441 | Episerver 6.x >= .NET 4 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 1600,
+    "name": "Apache $apr1$ MD5, md5apr1, MD5 (APR)",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "1600 | Apache $apr1$ MD5, md5apr1, MD5 (APR) | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 1711,
+    "name": "SSHA-512(Base64), LDAP {SSHA512}",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "1711 | SSHA-512(Base64), LDAP {SSHA512} | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 8300,
+    "name": "DNSSEC (NSEC3)",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "8300 | DNSSEC (NSEC3) | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 10901,
+    "name": "RedHat 389-DS LDAP (PBKDF2-HMAC-SHA256)",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "10901 | RedHat 389-DS LDAP (PBKDF2-HMAC-SHA256) | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 12600,
+    "name": "ColdFusion 10+",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "12600 | ColdFusion 10+ | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 15000,
+    "name": "FileZilla Server >= 0.9.55",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "15000 | FileZilla Server >= 0.9.55 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 16400,
+    "name": "CRAM-MD5 Dovecot",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "16400 | CRAM-MD5 Dovecot | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 24900,
+    "name": "Dahua Authentication MD5",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "24900 | Dahua Authentication MD5 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 24901,
+    "name": "Besder Authentication MD5",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "24901 | Besder Authentication MD5 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 25900,
+    "name": "KNX IP Secure - Device Authentication Code",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "25900 | KNX IP Secure - Device Authentication Code | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 29200,
+    "name": "Radmin3",
+    "category": "FTP, HTTP, SMTP, LDAP Server",
+    "label": "29200 | Radmin3 | FTP, HTTP, SMTP, LDAP Server"
+  },
+  {
+    "mode": 29910,
+    "name": "ENCsecurity Datavault (PBKDF2/no keychain)",
+    "category": "File-Based Encryption (FBE)",
+    "label": "29910 | ENCsecurity Datavault (PBKDF2/no keychain) | File-Based Encryption (FBE)"
+  },
+  {
+    "mode": 29920,
+    "name": "ENCsecurity Datavault (PBKDF2/keychain)",
+    "category": "File-Based Encryption (FBE)",
+    "label": "29920 | ENCsecurity Datavault (PBKDF2/keychain) | File-Based Encryption (FBE)"
+  },
+  {
+    "mode": 29930,
+    "name": "ENCsecurity Datavault (MD5/no keychain)",
+    "category": "File-Based Encryption (FBE)",
+    "label": "29930 | ENCsecurity Datavault (MD5/no keychain) | File-Based Encryption (FBE)"
+  },
+  {
+    "mode": 29940,
+    "name": "ENCsecurity Datavault (MD5/keychain)",
+    "category": "File-Based Encryption (FBE)",
+    "label": "29940 | ENCsecurity Datavault (MD5/keychain) | File-Based Encryption (FBE)"
+  },
+  {
+    "mode": 11,
+    "name": "Joomla < 2.5.18",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "11 | Joomla < 2.5.18 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 21,
+    "name": "osCommerce, xt:Commerce",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "21 | osCommerce, xt:Commerce | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 121,
+    "name": "SMF (Simple Machines Forum) > v1.1",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "121 | SMF (Simple Machines Forum) > v1.1 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 2611,
+    "name": "vBulletin < v3.8.5",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "2611 | vBulletin < v3.8.5 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 2612,
+    "name": "PHPS",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "2612 | PHPS | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 2711,
+    "name": "vBulletin >= v3.8.5",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "2711 | vBulletin >= v3.8.5 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 2811,
+    "name": "MyBB 1.2+, IPB2+ (Invision Power Board)",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "2811 | MyBB 1.2+, IPB2+ (Invision Power Board) | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 3711,
+    "name": "MediaWiki B type",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "3711 | MediaWiki B type | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 4521,
+    "name": "Redmine",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "4521 | Redmine | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 4522,
+    "name": "PunBB",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "4522 | PunBB | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 7900,
+    "name": "Drupal7",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "7900 | Drupal7 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 8400,
+    "name": "WBB3 (Woltlab Burning Board)",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "8400 | WBB3 (Woltlab Burning Board) | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 11000,
+    "name": "PrestaShop",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "11000 | PrestaShop | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 13900,
+    "name": "OpenCart",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "13900 | OpenCart | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 16000,
+    "name": "Tripcode",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "16000 | Tripcode | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 22800,
+    "name": "Simpla CMS - md5($salt.$pass.md5($pass))",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "22800 | Simpla CMS - md5($salt.$pass.md5($pass)) | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 24800,
+    "name": "Umbraco HMAC-SHA1",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "24800 | Umbraco HMAC-SHA1 | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 32300,
+    "name": "Empire CMS (Admin password)",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "32300 | Empire CMS (Admin password) | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 32600,
+    "name": "CubeCart (whirlpool($salt.$pass.$salt))",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "32600 | CubeCart (whirlpool($salt.$pass.$salt)) | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 33800,
+    "name": "WBB4 (Woltlab Burning Board) [bcrypt(bcrypt($pass))]",
+    "category": "Forums, CMS, E-Commerce",
+    "label": "33800 | WBB4 (Woltlab Burning Board) [bcrypt(bcrypt($pass))] | Forums, CMS, E-Commerce"
+  },
+  {
+    "mode": 124,
+    "name": "Django (SHA-1)",
+    "category": "Framework",
+    "label": "124 | Django (SHA-1) | Framework"
+  },
+  {
+    "mode": 10000,
+    "name": "Django (PBKDF2-SHA256)",
+    "category": "Framework",
+    "label": "10000 | Django (PBKDF2-SHA256) | Framework"
+  },
+  {
+    "mode": 12001,
+    "name": "Atlassian (PBKDF2-HMAC-SHA1)",
+    "category": "Framework",
+    "label": "12001 | Atlassian (PBKDF2-HMAC-SHA1) | Framework"
+  },
+  {
+    "mode": 12150,
+    "name": "Apache Shiro 1 SHA-512",
+    "category": "Framework",
+    "label": "12150 | Apache Shiro 1 SHA-512 | Framework"
+  },
+  {
+    "mode": 16501,
+    "name": "Perl Mojolicious session cookie (HMAC-SHA256, >= v9.19)",
+    "category": "Framework",
+    "label": "16501 | Perl Mojolicious session cookie (HMAC-SHA256, >= v9.19) | Framework"
+  },
+  {
+    "mode": 19500,
+    "name": "Ruby on Rails Restful-Authentication",
+    "category": "Framework",
+    "label": "19500 | Ruby on Rails Restful-Authentication | Framework"
+  },
+  {
+    "mode": 20200,
+    "name": "Python passlib pbkdf2-sha512",
+    "category": "Framework",
+    "label": "20200 | Python passlib pbkdf2-sha512 | Framework"
+  },
+  {
+    "mode": 20300,
+    "name": "Python passlib pbkdf2-sha256",
+    "category": "Framework",
+    "label": "20300 | Python passlib pbkdf2-sha256 | Framework"
+  },
+  {
+    "mode": 20400,
+    "name": "Python passlib pbkdf2-sha1",
+    "category": "Framework",
+    "label": "20400 | Python passlib pbkdf2-sha1 | Framework"
+  },
+  {
+    "mode": 21600,
+    "name": "Web2py pbkdf2-sha512",
+    "category": "Framework",
+    "label": "21600 | Web2py pbkdf2-sha512 | Framework"
+  },
+  {
+    "mode": 27200,
+    "name": "Ruby on Rails Restful Auth (one round, no sitekey)",
+    "category": "Framework",
+    "label": "27200 | Ruby on Rails Restful Auth (one round, no sitekey) | Framework"
+  },
+  {
+    "mode": 30000,
+    "name": "Python Werkzeug MD5 (HMAC-MD5 (key = $salt))",
+    "category": "Framework",
+    "label": "30000 | Python Werkzeug MD5 (HMAC-MD5 (key = $salt)) | Framework"
+  },
+  {
+    "mode": 30120,
+    "name": "Python Werkzeug SHA256 (HMAC-SHA256 (key = $salt))",
+    "category": "Framework",
+    "label": "30120 | Python Werkzeug SHA256 (HMAC-SHA256 (key = $salt)) | Framework"
+  },
+  {
+    "mode": 6211,
+    "name": "TrueCrypt RIPEMD160 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6211 | TrueCrypt RIPEMD160 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6212,
+    "name": "TrueCrypt RIPEMD160 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6212 | TrueCrypt RIPEMD160 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6213,
+    "name": "TrueCrypt RIPEMD160 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6213 | TrueCrypt RIPEMD160 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6221,
+    "name": "TrueCrypt SHA512 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6221 | TrueCrypt SHA512 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6222,
+    "name": "TrueCrypt SHA512 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6222 | TrueCrypt SHA512 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6223,
+    "name": "TrueCrypt SHA512 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6223 | TrueCrypt SHA512 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6231,
+    "name": "TrueCrypt Whirlpool + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6231 | TrueCrypt Whirlpool + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6232,
+    "name": "TrueCrypt Whirlpool + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6232 | TrueCrypt Whirlpool + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6233,
+    "name": "TrueCrypt Whirlpool + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6233 | TrueCrypt Whirlpool + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6241,
+    "name": "TrueCrypt RIPEMD160 + XTS 512 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6241 | TrueCrypt RIPEMD160 + XTS 512 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6242,
+    "name": "TrueCrypt RIPEMD160 + XTS 1024 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6242 | TrueCrypt RIPEMD160 + XTS 1024 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 6243,
+    "name": "TrueCrypt RIPEMD160 + XTS 1536 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "6243 | TrueCrypt RIPEMD160 + XTS 1536 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 8800,
+    "name": "Android FDE <= 4.3",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "8800 | Android FDE <= 4.3 | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 12200,
+    "name": "eCryptfs",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "12200 | eCryptfs | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 12900,
+    "name": "Android FDE (Samsung DEK)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "12900 | Android FDE (Samsung DEK) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13711,
+    "name": "VeraCrypt RIPEMD160 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13711 | VeraCrypt RIPEMD160 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13712,
+    "name": "VeraCrypt RIPEMD160 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13712 | VeraCrypt RIPEMD160 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13713,
+    "name": "VeraCrypt RIPEMD160 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13713 | VeraCrypt RIPEMD160 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13721,
+    "name": "VeraCrypt SHA512 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13721 | VeraCrypt SHA512 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13722,
+    "name": "VeraCrypt SHA512 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13722 | VeraCrypt SHA512 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13723,
+    "name": "VeraCrypt SHA512 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13723 | VeraCrypt SHA512 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13731,
+    "name": "VeraCrypt Whirlpool + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13731 | VeraCrypt Whirlpool + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13732,
+    "name": "VeraCrypt Whirlpool + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13732 | VeraCrypt Whirlpool + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13733,
+    "name": "VeraCrypt Whirlpool + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13733 | VeraCrypt Whirlpool + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13741,
+    "name": "VeraCrypt RIPEMD160 + XTS 512 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13741 | VeraCrypt RIPEMD160 + XTS 512 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13742,
+    "name": "VeraCrypt RIPEMD160 + XTS 1024 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13742 | VeraCrypt RIPEMD160 + XTS 1024 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13743,
+    "name": "VeraCrypt RIPEMD160 + XTS 1536 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13743 | VeraCrypt RIPEMD160 + XTS 1536 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13751,
+    "name": "VeraCrypt SHA256 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13751 | VeraCrypt SHA256 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13752,
+    "name": "VeraCrypt SHA256 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13752 | VeraCrypt SHA256 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13753,
+    "name": "VeraCrypt SHA256 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13753 | VeraCrypt SHA256 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13761,
+    "name": "VeraCrypt SHA256 + XTS 512 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13761 | VeraCrypt SHA256 + XTS 512 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13762,
+    "name": "VeraCrypt SHA256 + XTS 1024 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13762 | VeraCrypt SHA256 + XTS 1024 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13763,
+    "name": "VeraCrypt SHA256 + XTS 1536 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13763 | VeraCrypt SHA256 + XTS 1536 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13771,
+    "name": "VeraCrypt Streebog-512 + XTS 512 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13771 | VeraCrypt Streebog-512 + XTS 512 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13772,
+    "name": "VeraCrypt Streebog-512 + XTS 1024 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13772 | VeraCrypt Streebog-512 + XTS 1024 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13773,
+    "name": "VeraCrypt Streebog-512 + XTS 1536 bit (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13773 | VeraCrypt Streebog-512 + XTS 1536 bit (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13781,
+    "name": "VeraCrypt Streebog-512 + XTS 512 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13781 | VeraCrypt Streebog-512 + XTS 512 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13782,
+    "name": "VeraCrypt Streebog-512 + XTS 1024 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13782 | VeraCrypt Streebog-512 + XTS 1024 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 13783,
+    "name": "VeraCrypt Streebog-512 + XTS 1536 bit + boot-mode (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "13783 | VeraCrypt Streebog-512 + XTS 1536 bit + boot-mode (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 14600,
+    "name": "LUKS v1 (legacy)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "14600 | LUKS v1 (legacy) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 16700,
+    "name": "FileVault 2",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "16700 | FileVault 2 | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 18300,
+    "name": "Apple File System (APFS)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "18300 | Apple File System (APFS) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 20011,
+    "name": "DiskCryptor SHA512 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "20011 | DiskCryptor SHA512 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 20012,
+    "name": "DiskCryptor SHA512 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "20012 | DiskCryptor SHA512 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 20013,
+    "name": "DiskCryptor SHA512 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "20013 | DiskCryptor SHA512 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 22100,
+    "name": "BitLocker",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "22100 | BitLocker | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 22400,
+    "name": "AES Crypt (SHA256)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "22400 | AES Crypt (SHA256) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 23900,
+    "name": "BestCrypt v3 Volume Encryption",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "23900 | BestCrypt v3 Volume Encryption | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 24000,
+    "name": "BestCrypt v4 Volume Encryption",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "24000 | BestCrypt v4 Volume Encryption | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 27400,
+    "name": "VMware VMX (PBKDF2-HMAC-SHA1 + AES-256-CBC)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "27400 | VMware VMX (PBKDF2-HMAC-SHA1 + AES-256-CBC) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 27500,
+    "name": "VirtualBox (PBKDF2-HMAC-SHA256 & AES-128-XTS)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "27500 | VirtualBox (PBKDF2-HMAC-SHA256 & AES-128-XTS) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 27600,
+    "name": "VirtualBox (PBKDF2-HMAC-SHA256 & AES-256-XTS)",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "27600 | VirtualBox (PBKDF2-HMAC-SHA256 & AES-256-XTS) | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29311,
+    "name": "TrueCrypt RIPEMD160 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29311 | TrueCrypt RIPEMD160 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29312,
+    "name": "TrueCrypt RIPEMD160 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29312 | TrueCrypt RIPEMD160 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29313,
+    "name": "TrueCrypt RIPEMD160 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29313 | TrueCrypt RIPEMD160 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29321,
+    "name": "TrueCrypt SHA512 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29321 | TrueCrypt SHA512 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29322,
+    "name": "TrueCrypt SHA512 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29322 | TrueCrypt SHA512 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29323,
+    "name": "TrueCrypt SHA512 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29323 | TrueCrypt SHA512 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29331,
+    "name": "TrueCrypt Whirlpool + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29331 | TrueCrypt Whirlpool + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29332,
+    "name": "TrueCrypt Whirlpool + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29332 | TrueCrypt Whirlpool + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29333,
+    "name": "TrueCrypt Whirlpool + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29333 | TrueCrypt Whirlpool + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29341,
+    "name": "TrueCrypt RIPEMD160 + XTS 512 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29341 | TrueCrypt RIPEMD160 + XTS 512 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29342,
+    "name": "TrueCrypt RIPEMD160 + XTS 1024 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29342 | TrueCrypt RIPEMD160 + XTS 1024 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29343,
+    "name": "TrueCrypt RIPEMD160 + XTS 1536 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29343 | TrueCrypt RIPEMD160 + XTS 1536 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29411,
+    "name": "VeraCrypt RIPEMD160 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29411 | VeraCrypt RIPEMD160 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29412,
+    "name": "VeraCrypt RIPEMD160 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29412 | VeraCrypt RIPEMD160 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29413,
+    "name": "VeraCrypt RIPEMD160 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29413 | VeraCrypt RIPEMD160 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29421,
+    "name": "VeraCrypt SHA512 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29421 | VeraCrypt SHA512 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29422,
+    "name": "VeraCrypt SHA512 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29422 | VeraCrypt SHA512 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29423,
+    "name": "VeraCrypt SHA512 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29423 | VeraCrypt SHA512 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29431,
+    "name": "VeraCrypt Whirlpool + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29431 | VeraCrypt Whirlpool + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29432,
+    "name": "VeraCrypt Whirlpool + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29432 | VeraCrypt Whirlpool + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29433,
+    "name": "VeraCrypt Whirlpool + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29433 | VeraCrypt Whirlpool + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29441,
+    "name": "VeraCrypt RIPEMD160 + XTS 512 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29441 | VeraCrypt RIPEMD160 + XTS 512 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29442,
+    "name": "VeraCrypt RIPEMD160 + XTS 1024 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29442 | VeraCrypt RIPEMD160 + XTS 1024 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29443,
+    "name": "VeraCrypt RIPEMD160 + XTS 1536 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29443 | VeraCrypt RIPEMD160 + XTS 1536 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29451,
+    "name": "VeraCrypt SHA256 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29451 | VeraCrypt SHA256 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29452,
+    "name": "VeraCrypt SHA256 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29452 | VeraCrypt SHA256 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29453,
+    "name": "VeraCrypt SHA256 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29453 | VeraCrypt SHA256 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29461,
+    "name": "VeraCrypt SHA256 + XTS 512 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29461 | VeraCrypt SHA256 + XTS 512 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29462,
+    "name": "VeraCrypt SHA256 + XTS 1024 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29462 | VeraCrypt SHA256 + XTS 1024 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29463,
+    "name": "VeraCrypt SHA256 + XTS 1536 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29463 | VeraCrypt SHA256 + XTS 1536 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29471,
+    "name": "VeraCrypt Streebog-512 + XTS 512 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29471 | VeraCrypt Streebog-512 + XTS 512 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29472,
+    "name": "VeraCrypt Streebog-512 + XTS 1024 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29472 | VeraCrypt Streebog-512 + XTS 1024 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29473,
+    "name": "VeraCrypt Streebog-512 + XTS 1536 bit",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29473 | VeraCrypt Streebog-512 + XTS 1536 bit | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29481,
+    "name": "VeraCrypt Streebog-512 + XTS 512 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29481 | VeraCrypt Streebog-512 + XTS 512 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29482,
+    "name": "VeraCrypt Streebog-512 + XTS 1024 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29482 | VeraCrypt Streebog-512 + XTS 1024 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29483,
+    "name": "VeraCrypt Streebog-512 + XTS 1536 bit + boot-mode",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29483 | VeraCrypt Streebog-512 + XTS 1536 bit + boot-mode | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29511,
+    "name": "LUKS v1 SHA-1 + AES",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29511 | LUKS v1 SHA-1 + AES | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29512,
+    "name": "LUKS v1 SHA-1 + Serpent",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29512 | LUKS v1 SHA-1 + Serpent | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29513,
+    "name": "LUKS v1 SHA-1 + Twofish",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29513 | LUKS v1 SHA-1 + Twofish | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29521,
+    "name": "LUKS v1 SHA-256 + AES",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29521 | LUKS v1 SHA-256 + AES | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29522,
+    "name": "LUKS v1 SHA-256 + Serpent",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29522 | LUKS v1 SHA-256 + Serpent | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29523,
+    "name": "LUKS v1 SHA-256 + Twofish",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29523 | LUKS v1 SHA-256 + Twofish | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29531,
+    "name": "LUKS v1 SHA-512 + AES",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29531 | LUKS v1 SHA-512 + AES | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29532,
+    "name": "LUKS v1 SHA-512 + Serpent",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29532 | LUKS v1 SHA-512 + Serpent | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29533,
+    "name": "LUKS v1 SHA-512 + Twofish",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29533 | LUKS v1 SHA-512 + Twofish | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29541,
+    "name": "LUKS v1 RIPEMD-160 + AES",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29541 | LUKS v1 RIPEMD-160 + AES | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29542,
+    "name": "LUKS v1 RIPEMD-160 + Serpent",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29542 | LUKS v1 RIPEMD-160 + Serpent | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 29543,
+    "name": "LUKS v1 RIPEMD-160 + Twofish",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "29543 | LUKS v1 RIPEMD-160 + Twofish | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 34100,
+    "name": "LUKS v2 argon2 + SHA-256 + AES",
+    "category": "Full-Disk Encryption (FDE)",
+    "label": "34100 | LUKS v2 argon2 + SHA-256 + AES | Full-Disk Encryption (FDE)"
+  },
+  {
+    "mode": 400,
+    "name": "phpass",
+    "category": "Generic KDF",
+    "label": "400 | phpass | Generic KDF"
+  },
+  {
+    "mode": 8900,
+    "name": "scrypt",
+    "category": "Generic KDF",
+    "label": "8900 | scrypt | Generic KDF"
+  },
+  {
+    "mode": 10900,
+    "name": "PBKDF2-HMAC-SHA256",
+    "category": "Generic KDF",
+    "label": "10900 | PBKDF2-HMAC-SHA256 | Generic KDF"
+  },
+  {
+    "mode": 11900,
+    "name": "PBKDF2-HMAC-MD5",
+    "category": "Generic KDF",
+    "label": "11900 | PBKDF2-HMAC-MD5 | Generic KDF"
+  },
+  {
+    "mode": 12000,
+    "name": "PBKDF2-HMAC-SHA1",
+    "category": "Generic KDF",
+    "label": "12000 | PBKDF2-HMAC-SHA1 | Generic KDF"
+  },
+  {
+    "mode": 12100,
+    "name": "PBKDF2-HMAC-SHA512",
+    "category": "Generic KDF",
+    "label": "12100 | PBKDF2-HMAC-SHA512 | Generic KDF"
+  },
+  {
+    "mode": 25600,
+    "name": "bcrypt(md5($pass))",
+    "category": "Generic KDF",
+    "label": "25600 | bcrypt(md5($pass)) | Generic KDF"
+  },
+  {
+    "mode": 25800,
+    "name": "bcrypt(sha1($pass))",
+    "category": "Generic KDF",
+    "label": "25800 | bcrypt(sha1($pass)) | Generic KDF"
+  },
+  {
+    "mode": 28400,
+    "name": "bcrypt(sha512($pass))",
+    "category": "Generic KDF",
+    "label": "28400 | bcrypt(sha512($pass)) | Generic KDF"
+  },
+  {
+    "mode": 30600,
+    "name": "bcrypt(sha256($pass))",
+    "category": "Generic KDF",
+    "label": "30600 | bcrypt(sha256($pass)) | Generic KDF"
+  },
+  {
+    "mode": 30601,
+    "name": "bcrypt(HMAC-SHA256($pass))",
+    "category": "Generic KDF",
+    "label": "30601 | bcrypt(HMAC-SHA256($pass)) | Generic KDF"
+  },
+  {
+    "mode": 32900,
+    "name": "PBKDF1-SHA1",
+    "category": "Generic KDF",
+    "label": "32900 | PBKDF1-SHA1 | Generic KDF"
+  },
+  {
+    "mode": 34000,
+    "name": "Argon2",
+    "category": "Generic KDF",
+    "label": "34000 | Argon2 | Generic KDF"
+  },
+  {
+    "mode": 70000,
+    "name": "Argon2id [Bridged: reference implementation + tunings]",
+    "category": "Generic KDF",
+    "label": "70000 | Argon2id [Bridged: reference implementation + tunings] | Generic KDF"
+  },
+  {
+    "mode": 70100,
+    "name": "scrypt [Bridged: Scrypt-Jane SMix]",
+    "category": "Generic KDF",
+    "label": "70100 | scrypt [Bridged: Scrypt-Jane SMix] | Generic KDF"
+  },
+  {
+    "mode": 70200,
+    "name": "scrypt [Bridged: Scrypt-Yescrypt]",
+    "category": "Generic KDF",
+    "label": "70200 | scrypt [Bridged: Scrypt-Yescrypt] | Generic KDF"
+  },
+  {
+    "mode": 23,
+    "name": "Skype",
+    "category": "Instant Messaging Service",
+    "label": "23 | Skype | Instant Messaging Service"
+  },
+  {
+    "mode": 22301,
+    "name": "Telegram Mobile App Passcode (SHA256)",
+    "category": "Instant Messaging Service",
+    "label": "22301 | Telegram Mobile App Passcode (SHA256) | Instant Messaging Service"
+  },
+  {
+    "mode": 22600,
+    "name": "Telegram Desktop < v2.1.14 (PBKDF2-HMAC-SHA1)",
+    "category": "Instant Messaging Service",
+    "label": "22600 | Telegram Desktop < v2.1.14 (PBKDF2-HMAC-SHA1) | Instant Messaging Service"
+  },
+  {
+    "mode": 23200,
+    "name": "XMPP SCRAM PBKDF2-SHA1",
+    "category": "Instant Messaging Service",
+    "label": "23200 | XMPP SCRAM PBKDF2-SHA1 | Instant Messaging Service"
+  },
+  {
+    "mode": 24500,
+    "name": "Telegram Desktop >= v2.1.14 (PBKDF2-HMAC-SHA512)",
+    "category": "Instant Messaging Service",
+    "label": "24500 | Telegram Desktop >= v2.1.14 (PBKDF2-HMAC-SHA512) | Instant Messaging Service"
+  },
+  {
+    "mode": 28300,
+    "name": "Teamspeak 3 (channel hash)",
+    "category": "Instant Messaging Service",
+    "label": "28300 | Teamspeak 3 (channel hash) | Instant Messaging Service"
+  },
+  {
+    "mode": 30700,
+    "name": "Anope IRC Services (enc_sha256)",
+    "category": "Instant Messaging Service",
+    "label": "30700 | Anope IRC Services (enc_sha256) | Instant Messaging Service"
+  },
+  {
+    "mode": 2500,
+    "name": "WPA-EAPOL-PBKDF2",
+    "category": "Network Protocol",
+    "label": "2500 | WPA-EAPOL-PBKDF2 | Network Protocol"
+  },
+  {
+    "mode": 2501,
+    "name": "WPA-EAPOL-PMK",
+    "category": "Network Protocol",
+    "label": "2501 | WPA-EAPOL-PMK | Network Protocol"
+  },
+  {
+    "mode": 4800,
+    "name": "iSCSI CHAP authentication, MD5(CHAP)",
+    "category": "Network Protocol",
+    "label": "4800 | iSCSI CHAP authentication, MD5(CHAP) | Network Protocol"
+  },
+  {
+    "mode": 5300,
+    "name": "IKE-PSK MD5",
+    "category": "Network Protocol",
+    "label": "5300 | IKE-PSK MD5 | Network Protocol"
+  },
+  {
+    "mode": 5400,
+    "name": "IKE-PSK SHA1",
+    "category": "Network Protocol",
+    "label": "5400 | IKE-PSK SHA1 | Network Protocol"
+  },
+  {
+    "mode": 5500,
+    "name": "NetNTLMv1 / NetNTLMv1+ESS",
+    "category": "Network Protocol",
+    "label": "5500 | NetNTLMv1 / NetNTLMv1+ESS | Network Protocol"
+  },
+  {
+    "mode": 5600,
+    "name": "NetNTLMv2",
+    "category": "Network Protocol",
+    "label": "5600 | NetNTLMv2 | Network Protocol"
+  },
+  {
+    "mode": 7300,
+    "name": "IPMI2 RAKP HMAC-SHA1",
+    "category": "Network Protocol",
+    "label": "7300 | IPMI2 RAKP HMAC-SHA1 | Network Protocol"
+  },
+  {
+    "mode": 7350,
+    "name": "IPMI2 RAKP HMAC-MD5",
+    "category": "Network Protocol",
+    "label": "7350 | IPMI2 RAKP HMAC-MD5 | Network Protocol"
+  },
+  {
+    "mode": 7500,
+    "name": "Kerberos 5, etype 23, AS-REQ Pre-Auth",
+    "category": "Network Protocol",
+    "label": "7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth | Network Protocol"
+  },
+  {
+    "mode": 10200,
+    "name": "CRAM-MD5",
+    "category": "Network Protocol",
+    "label": "10200 | CRAM-MD5 | Network Protocol"
+  },
+  {
+    "mode": 11400,
+    "name": "SIP digest authentication (MD5)",
+    "category": "Network Protocol",
+    "label": "11400 | SIP digest authentication (MD5) | Network Protocol"
+  },
+  {
+    "mode": 13100,
+    "name": "Kerberos 5, etype 23, TGS-REP",
+    "category": "Network Protocol",
+    "label": "13100 | Kerberos 5, etype 23, TGS-REP | Network Protocol"
+  },
+  {
+    "mode": 16100,
+    "name": "TACACS+",
+    "category": "Network Protocol",
+    "label": "16100 | TACACS+ | Network Protocol"
+  },
+  {
+    "mode": 16500,
+    "name": "JWT (JSON Web Token)",
+    "category": "Network Protocol",
+    "label": "16500 | JWT (JSON Web Token) | Network Protocol"
+  },
+  {
+    "mode": 16800,
+    "name": "WPA-PMKID-PBKDF2",
+    "category": "Network Protocol",
+    "label": "16800 | WPA-PMKID-PBKDF2 | Network Protocol"
+  },
+  {
+    "mode": 16801,
+    "name": "WPA-PMKID-PMK",
+    "category": "Network Protocol",
+    "label": "16801 | WPA-PMKID-PMK | Network Protocol"
+  },
+  {
+    "mode": 18200,
+    "name": "Kerberos 5, etype 23, AS-REP",
+    "category": "Network Protocol",
+    "label": "18200 | Kerberos 5, etype 23, AS-REP | Network Protocol"
+  },
+  {
+    "mode": 19600,
+    "name": "Kerberos 5, etype 17, TGS-REP",
+    "category": "Network Protocol",
+    "label": "19600 | Kerberos 5, etype 17, TGS-REP | Network Protocol"
+  },
+  {
+    "mode": 19700,
+    "name": "Kerberos 5, etype 18, TGS-REP",
+    "category": "Network Protocol",
+    "label": "19700 | Kerberos 5, etype 18, TGS-REP | Network Protocol"
+  },
+  {
+    "mode": 19800,
+    "name": "Kerberos 5, etype 17, Pre-Auth",
+    "category": "Network Protocol",
+    "label": "19800 | Kerberos 5, etype 17, Pre-Auth | Network Protocol"
+  },
+  {
+    "mode": 19900,
+    "name": "Kerberos 5, etype 18, Pre-Auth",
+    "category": "Network Protocol",
+    "label": "19900 | Kerberos 5, etype 18, Pre-Auth | Network Protocol"
+  },
+  {
+    "mode": 22000,
+    "name": "WPA-PBKDF2-PMKID+EAPOL",
+    "category": "Network Protocol",
+    "label": "22000 | WPA-PBKDF2-PMKID+EAPOL | Network Protocol"
+  },
+  {
+    "mode": 22001,
+    "name": "WPA-PMK-PMKID+EAPOL",
+    "category": "Network Protocol",
+    "label": "22001 | WPA-PMK-PMKID+EAPOL | Network Protocol"
+  },
+  {
+    "mode": 25000,
+    "name": "SNMPv3 HMAC-MD5-96/HMAC-SHA1-96",
+    "category": "Network Protocol",
+    "label": "25000 | SNMPv3 HMAC-MD5-96/HMAC-SHA1-96 | Network Protocol"
+  },
+  {
+    "mode": 25100,
+    "name": "SNMPv3 HMAC-MD5-96",
+    "category": "Network Protocol",
+    "label": "25100 | SNMPv3 HMAC-MD5-96 | Network Protocol"
+  },
+  {
+    "mode": 25200,
+    "name": "SNMPv3 HMAC-SHA1-96",
+    "category": "Network Protocol",
+    "label": "25200 | SNMPv3 HMAC-SHA1-96 | Network Protocol"
+  },
+  {
+    "mode": 26700,
+    "name": "SNMPv3 HMAC-SHA224-128",
+    "category": "Network Protocol",
+    "label": "26700 | SNMPv3 HMAC-SHA224-128 | Network Protocol"
+  },
+  {
+    "mode": 26800,
+    "name": "SNMPv3 HMAC-SHA256-192",
+    "category": "Network Protocol",
+    "label": "26800 | SNMPv3 HMAC-SHA256-192 | Network Protocol"
+  },
+  {
+    "mode": 26900,
+    "name": "SNMPv3 HMAC-SHA384-256",
+    "category": "Network Protocol",
+    "label": "26900 | SNMPv3 HMAC-SHA384-256 | Network Protocol"
+  },
+  {
+    "mode": 27000,
+    "name": "NetNTLMv1 / NetNTLMv1+ESS (NT)",
+    "category": "Network Protocol",
+    "label": "27000 | NetNTLMv1 / NetNTLMv1+ESS (NT) | Network Protocol"
+  },
+  {
+    "mode": 27100,
+    "name": "NetNTLMv2 (NT)",
+    "category": "Network Protocol",
+    "label": "27100 | NetNTLMv2 (NT) | Network Protocol"
+  },
+  {
+    "mode": 27300,
+    "name": "SNMPv3 HMAC-SHA512-384",
+    "category": "Network Protocol",
+    "label": "27300 | SNMPv3 HMAC-SHA512-384 | Network Protocol"
+  },
+  {
+    "mode": 28700,
+    "name": "Amazon AWS Signature Version 4",
+    "category": "Network Protocol",
+    "label": "28700 | Amazon AWS Signature Version 4 | Network Protocol"
+  },
+  {
+    "mode": 28800,
+    "name": "Kerberos 5, etype 17, DB",
+    "category": "Network Protocol",
+    "label": "28800 | Kerberos 5, etype 17, DB | Network Protocol"
+  },
+  {
+    "mode": 28900,
+    "name": "Kerberos 5, etype 18, DB",
+    "category": "Network Protocol",
+    "label": "28900 | Kerberos 5, etype 18, DB | Network Protocol"
+  },
+  {
+    "mode": 29100,
+    "name": "Flask Session Cookie ($salt.$salt.$pass)",
+    "category": "Network Protocol",
+    "label": "29100 | Flask Session Cookie ($salt.$salt.$pass) | Network Protocol"
+  },
+  {
+    "mode": 30420,
+    "name": "DANE RFC7929/RFC8162 SHA2-256",
+    "category": "Network Protocol",
+    "label": "30420 | DANE RFC7929/RFC8162 SHA2-256 | Network Protocol"
+  },
+  {
+    "mode": 31300,
+    "name": "MS SNTP",
+    "category": "Network Protocol",
+    "label": "31300 | MS SNTP | Network Protocol"
+  },
+  {
+    "mode": 32100,
+    "name": "Kerberos 5, etype 17, AS-REP",
+    "category": "Network Protocol",
+    "label": "32100 | Kerberos 5, etype 17, AS-REP | Network Protocol"
+  },
+  {
+    "mode": 32200,
+    "name": "Kerberos 5, etype 18, AS-REP",
+    "category": "Network Protocol",
+    "label": "32200 | Kerberos 5, etype 18, AS-REP | Network Protocol"
+  },
+  {
+    "mode": 18100,
+    "name": "TOTP (HMAC-SHA1)",
+    "category": "One-Time Password",
+    "label": "18100 | TOTP (HMAC-SHA1) | One-Time Password"
+  },
+  {
+    "mode": 22,
+    "name": "Juniper NetScreen/SSG (ScreenOS)",
+    "category": "Operating System",
+    "label": "22 | Juniper NetScreen/SSG (ScreenOS) | Operating System"
+  },
+  {
+    "mode": 122,
+    "name": "macOS v10.4, macOS v10.5, macOS v10.6",
+    "category": "Operating System",
+    "label": "122 | macOS v10.4, macOS v10.5, macOS v10.6 | Operating System"
+  },
+  {
+    "mode": 125,
+    "name": "ArubaOS",
+    "category": "Operating System",
+    "label": "125 | ArubaOS | Operating System"
+  },
+  {
+    "mode": 500,
+    "name": "md5crypt, MD5 (Unix), Cisco-IOS $1$ (MD5)",
+    "category": "Operating System",
+    "label": "500 | md5crypt, MD5 (Unix), Cisco-IOS $1$ (MD5) | Operating System"
+  },
+  {
+    "mode": 501,
+    "name": "Juniper IVE",
+    "category": "Operating System",
+    "label": "501 | Juniper IVE | Operating System"
+  },
+  {
+    "mode": 1000,
+    "name": "NTLM",
+    "category": "Operating System",
+    "label": "1000 | NTLM | Operating System"
+  },
+  {
+    "mode": 1100,
+    "name": "Domain Cached Credentials (DCC), MS Cache",
+    "category": "Operating System",
+    "label": "1100 | Domain Cached Credentials (DCC), MS Cache | Operating System"
+  },
+  {
+    "mode": 1500,
+    "name": "descrypt, DES (Unix), Traditional DES",
+    "category": "Operating System",
+    "label": "1500 | descrypt, DES (Unix), Traditional DES | Operating System"
+  },
+  {
+    "mode": 1722,
+    "name": "macOS v10.7",
+    "category": "Operating System",
+    "label": "1722 | macOS v10.7 | Operating System"
+  },
+  {
+    "mode": 1800,
+    "name": "sha512crypt $6$, SHA512 (Unix)",
+    "category": "Operating System",
+    "label": "1800 | sha512crypt $6$, SHA512 (Unix) | Operating System"
+  },
+  {
+    "mode": 2100,
+    "name": "Domain Cached Credentials 2 (DCC2), MS Cache 2",
+    "category": "Operating System",
+    "label": "2100 | Domain Cached Credentials 2 (DCC2), MS Cache 2 | Operating System"
+  },
+  {
+    "mode": 2400,
+    "name": "Cisco-PIX MD5",
+    "category": "Operating System",
+    "label": "2400 | Cisco-PIX MD5 | Operating System"
+  },
+  {
+    "mode": 2410,
+    "name": "Cisco-ASA MD5",
+    "category": "Operating System",
+    "label": "2410 | Cisco-ASA MD5 | Operating System"
+  },
+  {
+    "mode": 3000,
+    "name": "LM",
+    "category": "Operating System",
+    "label": "3000 | LM | Operating System"
+  },
+  {
+    "mode": 3200,
+    "name": "bcrypt $2*$, Blowfish (Unix)",
+    "category": "Operating System",
+    "label": "3200 | bcrypt $2*$, Blowfish (Unix) | Operating System"
+  },
+  {
+    "mode": 5700,
+    "name": "Cisco-IOS type 4 (SHA256)",
+    "category": "Operating System",
+    "label": "5700 | Cisco-IOS type 4 (SHA256) | Operating System"
+  },
+  {
+    "mode": 5720,
+    "name": "Cisco-ISE Hashed Password (SHA256)",
+    "category": "Operating System",
+    "label": "5720 | Cisco-ISE Hashed Password (SHA256) | Operating System"
+  },
+  {
+    "mode": 5800,
+    "name": "Samsung Android Password/PIN",
+    "category": "Operating System",
+    "label": "5800 | Samsung Android Password/PIN | Operating System"
+  },
+  {
+    "mode": 6300,
+    "name": "AIX {smd5}",
+    "category": "Operating System",
+    "label": "6300 | AIX {smd5} | Operating System"
+  },
+  {
+    "mode": 6400,
+    "name": "AIX {ssha256}",
+    "category": "Operating System",
+    "label": "6400 | AIX {ssha256} | Operating System"
+  },
+  {
+    "mode": 6500,
+    "name": "AIX {ssha512}",
+    "category": "Operating System",
+    "label": "6500 | AIX {ssha512} | Operating System"
+  },
+  {
+    "mode": 6700,
+    "name": "AIX {ssha1}",
+    "category": "Operating System",
+    "label": "6700 | AIX {ssha1} | Operating System"
+  },
+  {
+    "mode": 7000,
+    "name": "FortiGate (FortiOS)",
+    "category": "Operating System",
+    "label": "7000 | FortiGate (FortiOS) | Operating System"
+  },
+  {
+    "mode": 7100,
+    "name": "macOS v10.8+ (PBKDF2-SHA512)",
+    "category": "Operating System",
+    "label": "7100 | macOS v10.8+ (PBKDF2-SHA512) | Operating System"
+  },
+  {
+    "mode": 7200,
+    "name": "GRUB 2",
+    "category": "Operating System",
+    "label": "7200 | GRUB 2 | Operating System"
+  },
+  {
+    "mode": 7400,
+    "name": "sha256crypt $5$, SHA256 (Unix)",
+    "category": "Operating System",
+    "label": "7400 | sha256crypt $5$, SHA256 (Unix) | Operating System"
+  },
+  {
+    "mode": 8100,
+    "name": "Citrix NetScaler (SHA1)",
+    "category": "Operating System",
+    "label": "8100 | Citrix NetScaler (SHA1) | Operating System"
+  },
+  {
+    "mode": 8500,
+    "name": "RACF",
+    "category": "Operating System",
+    "label": "8500 | RACF | Operating System"
+  },
+  {
+    "mode": 8501,
+    "name": "AS/400 DES",
+    "category": "Operating System",
+    "label": "8501 | AS/400 DES | Operating System"
+  },
+  {
+    "mode": 9200,
+    "name": "Cisco-IOS $8$ (PBKDF2-SHA256)",
+    "category": "Operating System",
+    "label": "9200 | Cisco-IOS $8$ (PBKDF2-SHA256) | Operating System"
+  },
+  {
+    "mode": 9300,
+    "name": "Cisco-IOS $9$ (scrypt)",
+    "category": "Operating System",
+    "label": "9300 | Cisco-IOS $9$ (scrypt) | Operating System"
+  },
+  {
+    "mode": 9900,
+    "name": "Radmin2",
+    "category": "Operating System",
+    "label": "9900 | Radmin2 | Operating System"
+  },
+  {
+    "mode": 12400,
+    "name": "BSDi Crypt, Extended DES",
+    "category": "Operating System",
+    "label": "12400 | BSDi Crypt, Extended DES | Operating System"
+  },
+  {
+    "mode": 12800,
+    "name": "MS-AzureSync PBKDF2-HMAC-SHA256",
+    "category": "Operating System",
+    "label": "12800 | MS-AzureSync PBKDF2-HMAC-SHA256 | Operating System"
+  },
+  {
+    "mode": 13800,
+    "name": "Windows Phone 8+ PIN/password",
+    "category": "Operating System",
+    "label": "13800 | Windows Phone 8+ PIN/password | Operating System"
+  },
+  {
+    "mode": 14200,
+    "name": "RACF KDFAES",
+    "category": "Operating System",
+    "label": "14200 | RACF KDFAES | Operating System"
+  },
+  {
+    "mode": 15100,
+    "name": "Juniper/NetBSD sha1crypt",
+    "category": "Operating System",
+    "label": "15100 | Juniper/NetBSD sha1crypt | Operating System"
+  },
+  {
+    "mode": 15300,
+    "name": "DPAPI masterkey file v1 (context 1 and 2)",
+    "category": "Operating System",
+    "label": "15300 | DPAPI masterkey file v1 (context 1 and 2) | Operating System"
+  },
+  {
+    "mode": 15310,
+    "name": "DPAPI masterkey file v1 (context 3)",
+    "category": "Operating System",
+    "label": "15310 | DPAPI masterkey file v1 (context 3) | Operating System"
+  },
+  {
+    "mode": 15900,
+    "name": "DPAPI masterkey file v2 (context 1 and 2)",
+    "category": "Operating System",
+    "label": "15900 | DPAPI masterkey file v2 (context 1 and 2) | Operating System"
+  },
+  {
+    "mode": 15910,
+    "name": "DPAPI masterkey file v2 (context 3)",
+    "category": "Operating System",
+    "label": "15910 | DPAPI masterkey file v2 (context 3) | Operating System"
+  },
+  {
+    "mode": 19000,
+    "name": "QNX /etc/shadow (MD5)",
+    "category": "Operating System",
+    "label": "19000 | QNX /etc/shadow (MD5) | Operating System"
+  },
+  {
+    "mode": 19100,
+    "name": "QNX /etc/shadow (SHA256)",
+    "category": "Operating System",
+    "label": "19100 | QNX /etc/shadow (SHA256) | Operating System"
+  },
+  {
+    "mode": 19200,
+    "name": "QNX /etc/shadow (SHA512)",
+    "category": "Operating System",
+    "label": "19200 | QNX /etc/shadow (SHA512) | Operating System"
+  },
+  {
+    "mode": 19210,
+    "name": "QNX 7 /etc/shadow (SHA512)",
+    "category": "Operating System",
+    "label": "19210 | QNX 7 /etc/shadow (SHA512) | Operating System"
+  },
+  {
+    "mode": 22200,
+    "name": "Citrix NetScaler (SHA512)",
+    "category": "Operating System",
+    "label": "22200 | Citrix NetScaler (SHA512) | Operating System"
+  },
+  {
+    "mode": 26300,
+    "name": "FortiGate256 (FortiOS256)",
+    "category": "Operating System",
+    "label": "26300 | FortiGate256 (FortiOS256) | Operating System"
+  },
+  {
+    "mode": 26500,
+    "name": "iPhone passcode (UID key + System Keybag)",
+    "category": "Operating System",
+    "label": "26500 | iPhone passcode (UID key + System Keybag) | Operating System"
+  },
+  {
+    "mode": 28100,
+    "name": "Windows Hello PIN/Password",
+    "category": "Operating System",
+    "label": "28100 | Windows Hello PIN/Password | Operating System"
+  },
+  {
+    "mode": 31500,
+    "name": "Domain Cached Credentials (DCC), MS Cache (NT)",
+    "category": "Operating System",
+    "label": "31500 | Domain Cached Credentials (DCC), MS Cache (NT) | Operating System"
+  },
+  {
+    "mode": 31600,
+    "name": "Domain Cached Credentials 2 (DCC2), MS Cache 2, (NT)",
+    "category": "Operating System",
+    "label": "31600 | Domain Cached Credentials 2 (DCC2), MS Cache 2, (NT) | Operating System"
+  },
+  {
+    "mode": 33700,
+    "name": "Microsoft Online Account (PBKDF2-HMAC-SHA256 + AES256)",
+    "category": "Operating System",
+    "label": "33700 | Microsoft Online Account (PBKDF2-HMAC-SHA256 + AES256) | Operating System"
+  },
+  {
+    "mode": 33900,
+    "name": "Citrix NetScaler (PBKDF2-HMAC-SHA256)",
+    "category": "Operating System",
+    "label": "33900 | Citrix NetScaler (PBKDF2-HMAC-SHA256) | Operating System"
+  },
+  {
+    "mode": 35100,
+    "name": "sm3crypt $sm3$, SM3 (Unix)",
+    "category": "Operating System",
+    "label": "35100 | sm3crypt $sm3$, SM3 (Unix) | Operating System"
+  },
+  {
+    "mode": 35200,
+    "name": "AS/400 SSHA1",
+    "category": "Operating System",
+    "label": "35200 | AS/400 SSHA1 | Operating System"
+  },
+  {
+    "mode": 5200,
+    "name": "Password Safe v3",
+    "category": "Password Manager",
+    "label": "5200 | Password Safe v3 | Password Manager"
+  },
+  {
+    "mode": 6600,
+    "name": "1Password, agilekeychain",
+    "category": "Password Manager",
+    "label": "6600 | 1Password, agilekeychain | Password Manager"
+  },
+  {
+    "mode": 6800,
+    "name": "LastPass + LastPass sniffed",
+    "category": "Password Manager",
+    "label": "6800 | LastPass + LastPass sniffed | Password Manager"
+  },
+  {
+    "mode": 8200,
+    "name": "1Password, cloudkeychain",
+    "category": "Password Manager",
+    "label": "8200 | 1Password, cloudkeychain | Password Manager"
+  },
+  {
+    "mode": 9000,
+    "name": "Password Safe v2",
+    "category": "Password Manager",
+    "label": "9000 | Password Safe v2 | Password Manager"
+  },
+  {
+    "mode": 13400,
+    "name": "KeePass (KDBX v2/v3)",
+    "category": "Password Manager",
+    "label": "13400 | KeePass (KDBX v2/v3) | Password Manager"
+  },
+  {
+    "mode": 16900,
+    "name": "Ansible Vault",
+    "category": "Password Manager",
+    "label": "16900 | Ansible Vault | Password Manager"
+  },
+  {
+    "mode": 23100,
+    "name": "Apple Keychain",
+    "category": "Password Manager",
+    "label": "23100 | Apple Keychain | Password Manager"
+  },
+  {
+    "mode": 23400,
+    "name": "Bitwarden",
+    "category": "Password Manager",
+    "label": "23400 | Bitwarden | Password Manager"
+  },
+  {
+    "mode": 26000,
+    "name": "Mozilla key3.db",
+    "category": "Password Manager",
+    "label": "26000 | Mozilla key3.db | Password Manager"
+  },
+  {
+    "mode": 26100,
+    "name": "Mozilla key4.db",
+    "category": "Password Manager",
+    "label": "26100 | Mozilla key4.db | Password Manager"
+  },
+  {
+    "mode": 29700,
+    "name": "KeePass (KDBX v2/v3) - keyfile only",
+    "category": "Password Manager",
+    "label": "29700 | KeePass (KDBX v2/v3) - keyfile only | Password Manager"
+  },
+  {
+    "mode": 31800,
+    "name": "1Password, mobilekeychain (1Password 8)",
+    "category": "Password Manager",
+    "label": "31800 | 1Password, mobilekeychain (1Password 8) | Password Manager"
+  },
+  {
+    "mode": 34300,
+    "name": "KeePass (KDBX v4)",
+    "category": "Password Manager",
+    "label": "34300 | KeePass (KDBX v4) | Password Manager"
+  },
+  {
+    "mode": 2000,
+    "name": "STDOUT",
+    "category": "Plaintext",
+    "label": "2000 | STDOUT | Plaintext"
+  },
+  {
+    "mode": 99999,
+    "name": "Plaintext",
+    "category": "Plaintext",
+    "label": "99999 | Plaintext | Plaintext"
+  },
+  {
+    "mode": 15500,
+    "name": "JKS Java Key Store Private Keys (SHA1)",
+    "category": "Private Key",
+    "label": "15500 | JKS Java Key Store Private Keys (SHA1) | Private Key"
+  },
+  {
+    "mode": 17010,
+    "name": "GPG (AES-128/AES-256 (SHA-1($pass)))",
+    "category": "Private Key",
+    "label": "17010 | GPG (AES-128/AES-256 (SHA-1($pass))) | Private Key"
+  },
+  {
+    "mode": 17020,
+    "name": "GPG (AES-128/AES-256 (SHA-512($pass)))",
+    "category": "Private Key",
+    "label": "17020 | GPG (AES-128/AES-256 (SHA-512($pass))) | Private Key"
+  },
+  {
+    "mode": 17030,
+    "name": "GPG (AES-128/AES-256 (SHA-256($pass)))",
+    "category": "Private Key",
+    "label": "17030 | GPG (AES-128/AES-256 (SHA-256($pass))) | Private Key"
+  },
+  {
+    "mode": 17040,
+    "name": "GPG (CAST5 (SHA-1($pass)))",
+    "category": "Private Key",
+    "label": "17040 | GPG (CAST5 (SHA-1($pass))) | Private Key"
+  },
+  {
+    "mode": 22911,
+    "name": "RSA/DSA/EC/OpenSSH Private Keys ($0$)",
+    "category": "Private Key",
+    "label": "22911 | RSA/DSA/EC/OpenSSH Private Keys ($0$) | Private Key"
+  },
+  {
+    "mode": 22921,
+    "name": "RSA/DSA/EC/OpenSSH Private Keys ($6$)",
+    "category": "Private Key",
+    "label": "22921 | RSA/DSA/EC/OpenSSH Private Keys ($6$) | Private Key"
+  },
+  {
+    "mode": 22931,
+    "name": "RSA/DSA/EC/OpenSSH Private Keys ($1, $3$)",
+    "category": "Private Key",
+    "label": "22931 | RSA/DSA/EC/OpenSSH Private Keys ($1, $3$) | Private Key"
+  },
+  {
+    "mode": 22941,
+    "name": "RSA/DSA/EC/OpenSSH Private Keys ($4$)",
+    "category": "Private Key",
+    "label": "22941 | RSA/DSA/EC/OpenSSH Private Keys ($4$) | Private Key"
+  },
+  {
+    "mode": 22951,
+    "name": "RSA/DSA/EC/OpenSSH Private Keys ($5$)",
+    "category": "Private Key",
+    "label": "22951 | RSA/DSA/EC/OpenSSH Private Keys ($5$) | Private Key"
+  },
+  {
+    "mode": 24410,
+    "name": "PKCS#8 Private Keys (PBKDF2-HMAC-SHA1 + 3DES/AES)",
+    "category": "Private Key",
+    "label": "24410 | PKCS#8 Private Keys (PBKDF2-HMAC-SHA1 + 3DES/AES) | Private Key"
+  },
+  {
+    "mode": 24420,
+    "name": "PKCS#8 Private Keys (PBKDF2-HMAC-SHA256 + 3DES/AES)",
+    "category": "Private Key",
+    "label": "24420 | PKCS#8 Private Keys (PBKDF2-HMAC-SHA256 + 3DES/AES) | Private Key"
+  },
+  {
+    "mode": 11500,
+    "name": "CRC32",
+    "category": "Raw Checksum",
+    "label": "11500 | CRC32 | Raw Checksum"
+  },
+  {
+    "mode": 18700,
+    "name": "Java Object hashCode()",
+    "category": "Raw Checksum",
+    "label": "18700 | Java Object hashCode() | Raw Checksum"
+  },
+  {
+    "mode": 25700,
+    "name": "MurmurHash",
+    "category": "Raw Checksum",
+    "label": "25700 | MurmurHash | Raw Checksum"
+  },
+  {
+    "mode": 27800,
+    "name": "MurmurHash3",
+    "category": "Raw Checksum",
+    "label": "27800 | MurmurHash3 | Raw Checksum"
+  },
+  {
+    "mode": 27900,
+    "name": "CRC32C",
+    "category": "Raw Checksum",
+    "label": "27900 | CRC32C | Raw Checksum"
+  },
+  {
+    "mode": 28000,
+    "name": "CRC64Jones",
+    "category": "Raw Checksum",
+    "label": "28000 | CRC64Jones | Raw Checksum"
+  },
+  {
+    "mode": 34200,
+    "name": "MurmurHash64A",
+    "category": "Raw Checksum",
+    "label": "34200 | MurmurHash64A | Raw Checksum"
+  },
+  {
+    "mode": 34201,
+    "name": "MurmurHash64A (zero seed)",
+    "category": "Raw Checksum",
+    "label": "34201 | MurmurHash64A (zero seed) | Raw Checksum"
+  },
+  {
+    "mode": 34211,
+    "name": "MurmurHash64A truncated (zero seed)",
+    "category": "Raw Checksum",
+    "label": "34211 | MurmurHash64A truncated (zero seed) | Raw Checksum"
+  },
+  {
+    "mode": 14000,
+    "name": "DES (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "14000 | DES (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 14100,
+    "name": "3DES (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "14100 | 3DES (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 14500,
+    "name": "Linux Kernel Crypto API (2.4)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "14500 | Linux Kernel Crypto API (2.4) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 14900,
+    "name": "Skip32 (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "14900 | Skip32 (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 15400,
+    "name": "ChaCha20",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "15400 | ChaCha20 | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 26401,
+    "name": "AES-128-ECB NOKDF (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "26401 | AES-128-ECB NOKDF (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 26402,
+    "name": "AES-192-ECB NOKDF (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "26402 | AES-192-ECB NOKDF (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 26403,
+    "name": "AES-256-ECB NOKDF (PT = $salt, key = $pass)",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "26403 | AES-256-ECB NOKDF (PT = $salt, key = $pass) | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 33500,
+    "name": "RC4 40-bit DropN",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "33500 | RC4 40-bit DropN | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 33501,
+    "name": "RC4 72-bit DropN",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "33501 | RC4 72-bit DropN | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 33502,
+    "name": "RC4 104-bit DropN",
+    "category": "Raw Cipher, Known-plaintext attack",
+    "label": "33502 | RC4 104-bit DropN | Raw Cipher, Known-plaintext attack"
+  },
+  {
+    "mode": 0,
+    "name": "MD5",
+    "category": "Raw Hash",
+    "label": "0 | MD5 | Raw Hash"
+  },
+  {
+    "mode": 70,
+    "name": "md5(utf16le($pass))",
+    "category": "Raw Hash",
+    "label": "70 | md5(utf16le($pass)) | Raw Hash"
+  },
+  {
+    "mode": 100,
+    "name": "SHA1",
+    "category": "Raw Hash",
+    "label": "100 | SHA1 | Raw Hash"
+  },
+  {
+    "mode": 170,
+    "name": "sha1(utf16le($pass))",
+    "category": "Raw Hash",
+    "label": "170 | sha1(utf16le($pass)) | Raw Hash"
+  },
+  {
+    "mode": 600,
+    "name": "BLAKE2b-512",
+    "category": "Raw Hash",
+    "label": "600 | BLAKE2b-512 | Raw Hash"
+  },
+  {
+    "mode": 900,
+    "name": "MD4",
+    "category": "Raw Hash",
+    "label": "900 | MD4 | Raw Hash"
+  },
+  {
+    "mode": 1300,
+    "name": "SHA2-224",
+    "category": "Raw Hash",
+    "label": "1300 | SHA2-224 | Raw Hash"
+  },
+  {
+    "mode": 1400,
+    "name": "SHA2-256",
+    "category": "Raw Hash",
+    "label": "1400 | SHA2-256 | Raw Hash"
+  },
+  {
+    "mode": 1470,
+    "name": "sha256(utf16le($pass))",
+    "category": "Raw Hash",
+    "label": "1470 | sha256(utf16le($pass)) | Raw Hash"
+  },
+  {
+    "mode": 1700,
+    "name": "SHA2-512",
+    "category": "Raw Hash",
+    "label": "1700 | SHA2-512 | Raw Hash"
+  },
+  {
+    "mode": 1770,
+    "name": "sha512(utf16le($pass))",
+    "category": "Raw Hash",
+    "label": "1770 | sha512(utf16le($pass)) | Raw Hash"
+  },
+  {
+    "mode": 5100,
+    "name": "Half MD5",
+    "category": "Raw Hash",
+    "label": "5100 | Half MD5 | Raw Hash"
+  },
+  {
+    "mode": 6000,
+    "name": "RIPEMD-160",
+    "category": "Raw Hash",
+    "label": "6000 | RIPEMD-160 | Raw Hash"
+  },
+  {
+    "mode": 6100,
+    "name": "Whirlpool",
+    "category": "Raw Hash",
+    "label": "6100 | Whirlpool | Raw Hash"
+  },
+  {
+    "mode": 6900,
+    "name": "GOST R 34.11-94",
+    "category": "Raw Hash",
+    "label": "6900 | GOST R 34.11-94 | Raw Hash"
+  },
+  {
+    "mode": 10800,
+    "name": "SHA2-384",
+    "category": "Raw Hash",
+    "label": "10800 | SHA2-384 | Raw Hash"
+  },
+  {
+    "mode": 10870,
+    "name": "sha384(utf16le($pass))",
+    "category": "Raw Hash",
+    "label": "10870 | sha384(utf16le($pass)) | Raw Hash"
+  },
+  {
+    "mode": 11700,
+    "name": "GOST R 34.11-2012 (Streebog) 256-bit, big-endian",
+    "category": "Raw Hash",
+    "label": "11700 | GOST R 34.11-2012 (Streebog) 256-bit, big-endian | Raw Hash"
+  },
+  {
+    "mode": 11800,
+    "name": "GOST R 34.11-2012 (Streebog) 512-bit, big-endian",
+    "category": "Raw Hash",
+    "label": "11800 | GOST R 34.11-2012 (Streebog) 512-bit, big-endian | Raw Hash"
+  },
+  {
+    "mode": 17300,
+    "name": "SHA3-224",
+    "category": "Raw Hash",
+    "label": "17300 | SHA3-224 | Raw Hash"
+  },
+  {
+    "mode": 17400,
+    "name": "SHA3-256",
+    "category": "Raw Hash",
+    "label": "17400 | SHA3-256 | Raw Hash"
+  },
+  {
+    "mode": 17500,
+    "name": "SHA3-384",
+    "category": "Raw Hash",
+    "label": "17500 | SHA3-384 | Raw Hash"
+  },
+  {
+    "mode": 17600,
+    "name": "SHA3-512",
+    "category": "Raw Hash",
+    "label": "17600 | SHA3-512 | Raw Hash"
+  },
+  {
+    "mode": 17700,
+    "name": "Keccak-224",
+    "category": "Raw Hash",
+    "label": "17700 | Keccak-224 | Raw Hash"
+  },
+  {
+    "mode": 17800,
+    "name": "Keccak-256",
+    "category": "Raw Hash",
+    "label": "17800 | Keccak-256 | Raw Hash"
+  },
+  {
+    "mode": 17900,
+    "name": "Keccak-384",
+    "category": "Raw Hash",
+    "label": "17900 | Keccak-384 | Raw Hash"
+  },
+  {
+    "mode": 18000,
+    "name": "Keccak-512",
+    "category": "Raw Hash",
+    "label": "18000 | Keccak-512 | Raw Hash"
+  },
+  {
+    "mode": 31000,
+    "name": "BLAKE2s-256",
+    "category": "Raw Hash",
+    "label": "31000 | BLAKE2s-256 | Raw Hash"
+  },
+  {
+    "mode": 31100,
+    "name": "ShangMi 3 (SM3)",
+    "category": "Raw Hash",
+    "label": "31100 | ShangMi 3 (SM3) | Raw Hash"
+  },
+  {
+    "mode": 33600,
+    "name": "RIPEMD-320",
+    "category": "Raw Hash",
+    "label": "33600 | RIPEMD-320 | Raw Hash"
+  },
+  {
+    "mode": 34400,
+    "name": "sha224(sha224($pass))",
+    "category": "Raw Hash",
+    "label": "34400 | sha224(sha224($pass)) | Raw Hash"
+  },
+  {
+    "mode": 34500,
+    "name": "sha224(sha1($pass))",
+    "category": "Raw Hash",
+    "label": "34500 | sha224(sha1($pass)) | Raw Hash"
+  },
+  {
+    "mode": 34600,
+    "name": "MD6 (256)",
+    "category": "Raw Hash",
+    "label": "34600 | MD6 (256) | Raw Hash"
+  },
+  {
+    "mode": 34800,
+    "name": "BLAKE2b-256",
+    "category": "Raw Hash",
+    "label": "34800 | BLAKE2b-256 | Raw Hash"
+  },
+  {
+    "mode": 50,
+    "name": "HMAC-MD5 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "50 | HMAC-MD5 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 60,
+    "name": "HMAC-MD5 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "60 | HMAC-MD5 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 150,
+    "name": "HMAC-SHA1 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "150 | HMAC-SHA1 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 160,
+    "name": "HMAC-SHA1 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "160 | HMAC-SHA1 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 1450,
+    "name": "HMAC-SHA256 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "1450 | HMAC-SHA256 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 1460,
+    "name": "HMAC-SHA256 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "1460 | HMAC-SHA256 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 1750,
+    "name": "HMAC-SHA512 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "1750 | HMAC-SHA512 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 1760,
+    "name": "HMAC-SHA512 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "1760 | HMAC-SHA512 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 6050,
+    "name": "HMAC-RIPEMD160 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "6050 | HMAC-RIPEMD160 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 6060,
+    "name": "HMAC-RIPEMD160 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "6060 | HMAC-RIPEMD160 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 10100,
+    "name": "SipHash",
+    "category": "Raw Hash authenticated",
+    "label": "10100 | SipHash | Raw Hash authenticated"
+  },
+  {
+    "mode": 11750,
+    "name": "HMAC-Streebog-256 (key = $pass), big-endian",
+    "category": "Raw Hash authenticated",
+    "label": "11750 | HMAC-Streebog-256 (key = $pass), big-endian | Raw Hash authenticated"
+  },
+  {
+    "mode": 11760,
+    "name": "HMAC-Streebog-256 (key = $salt), big-endian",
+    "category": "Raw Hash authenticated",
+    "label": "11760 | HMAC-Streebog-256 (key = $salt), big-endian | Raw Hash authenticated"
+  },
+  {
+    "mode": 11850,
+    "name": "HMAC-Streebog-512 (key = $pass), big-endian",
+    "category": "Raw Hash authenticated",
+    "label": "11850 | HMAC-Streebog-512 (key = $pass), big-endian | Raw Hash authenticated"
+  },
+  {
+    "mode": 11860,
+    "name": "HMAC-Streebog-512 (key = $salt), big-endian",
+    "category": "Raw Hash authenticated",
+    "label": "11860 | HMAC-Streebog-512 (key = $salt), big-endian | Raw Hash authenticated"
+  },
+  {
+    "mode": 33300,
+    "name": "HMAC-BLAKE2S (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "33300 | HMAC-BLAKE2S (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 33650,
+    "name": "HMAC-RIPEMD320 (key = $pass)",
+    "category": "Raw Hash authenticated",
+    "label": "33650 | HMAC-RIPEMD320 (key = $pass) | Raw Hash authenticated"
+  },
+  {
+    "mode": 33660,
+    "name": "HMAC-RIPEMD320 (key = $salt)",
+    "category": "Raw Hash authenticated",
+    "label": "33660 | HMAC-RIPEMD320 (key = $salt) | Raw Hash authenticated"
+  },
+  {
+    "mode": 10,
+    "name": "md5($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "10 | md5($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20,
+    "name": "md5($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20 | md5($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 30,
+    "name": "md5(utf16le($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "30 | md5(utf16le($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 40,
+    "name": "md5($salt.utf16le($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "40 | md5($salt.utf16le($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 110,
+    "name": "sha1($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "110 | sha1($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 120,
+    "name": "sha1($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "120 | sha1($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 130,
+    "name": "sha1(utf16le($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "130 | sha1(utf16le($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 140,
+    "name": "sha1($salt.utf16le($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "140 | sha1($salt.utf16le($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 610,
+    "name": "BLAKE2b-512($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "610 | BLAKE2b-512($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 620,
+    "name": "BLAKE2b-512($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "620 | BLAKE2b-512($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1310,
+    "name": "sha224($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1310 | sha224($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1320,
+    "name": "sha224($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1320 | sha224($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1410,
+    "name": "sha256($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1410 | sha256($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1420,
+    "name": "sha256($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1420 | sha256($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1430,
+    "name": "sha256(utf16le($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1430 | sha256(utf16le($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1440,
+    "name": "sha256($salt.utf16le($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1440 | sha256($salt.utf16le($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1710,
+    "name": "sha512($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1710 | sha512($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1720,
+    "name": "sha512($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1720 | sha512($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1730,
+    "name": "sha512(utf16le($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1730 | sha512(utf16le($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 1740,
+    "name": "sha512($salt.utf16le($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "1740 | sha512($salt.utf16le($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 2600,
+    "name": "md5(md5($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "2600 | md5(md5($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 2630,
+    "name": "md5(md5($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "2630 | md5(md5($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3500,
+    "name": "md5(md5(md5($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3500 | md5(md5(md5($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3610,
+    "name": "md5(md5(md5($pass)).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3610 | md5(md5(md5($pass)).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3710,
+    "name": "md5($salt.md5($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3710 | md5($salt.md5($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3730,
+    "name": "md5($salt1.strtoupper(md5($salt2.$pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3730 | md5($salt1.strtoupper(md5($salt2.$pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3800,
+    "name": "md5($salt.$pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3800 | md5($salt.$pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 3910,
+    "name": "md5(md5($pass).md5($salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "3910 | md5(md5($pass).md5($salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4010,
+    "name": "md5($salt.md5($salt.$pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4010 | md5($salt.md5($salt.$pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4110,
+    "name": "md5($salt.md5($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4110 | md5($salt.md5($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4300,
+    "name": "md5(strtoupper(md5($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4300 | md5(strtoupper(md5($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4400,
+    "name": "md5(sha1($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4400 | md5(sha1($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4410,
+    "name": "md5(sha1($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4410 | md5(sha1($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4420,
+    "name": "md5(sha1($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4420 | md5(sha1($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4430,
+    "name": "md5(sha1($salt.$pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4430 | md5(sha1($salt.$pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4500,
+    "name": "sha1(sha1($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4500 | sha1(sha1($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4510,
+    "name": "sha1(sha1($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4510 | sha1(sha1($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4520,
+    "name": "sha1($salt.sha1($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4520 | sha1($salt.sha1($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4700,
+    "name": "sha1(md5($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4700 | sha1(md5($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4710,
+    "name": "sha1(md5($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4710 | sha1(md5($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 4900,
+    "name": "sha1($salt.$pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "4900 | sha1($salt.$pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 5000,
+    "name": "sha1(sha1($salt.$pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "5000 | sha1(sha1($salt.$pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 10810,
+    "name": "sha384($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "10810 | sha384($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 10820,
+    "name": "sha384($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "10820 | sha384($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 10830,
+    "name": "sha384(utf16le($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "10830 | sha384(utf16le($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 10840,
+    "name": "sha384($salt.utf16le($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "10840 | sha384($salt.utf16le($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 14400,
+    "name": "sha1(CX)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "14400 | sha1(CX) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 18500,
+    "name": "sha1(md5(md5($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "18500 | sha1(md5(md5($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 19300,
+    "name": "sha1($salt1.$pass.$salt2)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "19300 | sha1($salt1.$pass.$salt2) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20710,
+    "name": "sha256(sha256($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20710 | sha256(sha256($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20720,
+    "name": "sha256($salt.sha256($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20720 | sha256($salt.sha256($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20730,
+    "name": "sha256(sha256($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20730 | sha256(sha256($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20800,
+    "name": "sha256(md5($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20800 | sha256(md5($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 20900,
+    "name": "md5(sha1($pass).md5($pass).sha1($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "20900 | md5(sha1($pass).md5($pass).sha1($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21100,
+    "name": "sha1(md5($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21100 | sha1(md5($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21200,
+    "name": "md5(sha1($salt).md5($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21200 | md5(sha1($salt).md5($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21300,
+    "name": "md5($salt.sha1($salt.$pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21300 | md5($salt.sha1($salt.$pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21310,
+    "name": "md5($salt1.sha1($salt2.$pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21310 | md5($salt1.sha1($salt2.$pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21400,
+    "name": "sha256(sha256_bin($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21400 | sha256(sha256_bin($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21420,
+    "name": "sha256($salt.sha256_bin($pass))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21420 | sha256($salt.sha256_bin($pass)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 21900,
+    "name": "md5(md5(md5($pass.$salt1)).$salt2)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "21900 | md5(md5(md5($pass.$salt1)).$salt2) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 22300,
+    "name": "sha256($salt.$pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "22300 | sha256($salt.$pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 24300,
+    "name": "sha1($salt.sha1($pass.$salt))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "24300 | sha1($salt.sha1($pass.$salt)) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 29000,
+    "name": "sha1($salt.sha1(utf16le($username).':'.utf16le($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "29000 | sha1($salt.sha1(utf16le($username).':'.utf16le($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 30500,
+    "name": "md5(md5($salt).md5(md5($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "30500 | md5(md5($salt).md5(md5($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 31700,
+    "name": "md5(md5(md5($pass).$salt1).$salt2)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "31700 | md5(md5(md5($pass).$salt1).$salt2) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 32410,
+    "name": "sha512(sha512($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "32410 | sha512(sha512($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 32420,
+    "name": "sha512(sha512_bin($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "32420 | sha512(sha512_bin($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 32800,
+    "name": "md5(sha1(md5($pass)))",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "32800 | md5(sha1(md5($pass))) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 33000,
+    "name": "md5($salt1.$pass.$salt2)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "33000 | md5($salt1.$pass.$salt2) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 33100,
+    "name": "md5($salt.md5($pass).$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "33100 | md5($salt.md5($pass).$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 34810,
+    "name": "BLAKE2b-256($pass.$salt)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "34810 | BLAKE2b-256($pass.$salt) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 34820,
+    "name": "BLAKE2b-256($salt.$pass)",
+    "category": "Raw Hash salted and/or iterated",
+    "label": "34820 | BLAKE2b-256($salt.$pass) | Raw Hash salted and/or iterated"
+  },
+  {
+    "mode": 72000,
+    "name": "Generic Hash [Bridged: Python Interpreter free-threading]",
+    "category": "Undefined",
+    "label": "72000 | Generic Hash [Bridged: Python Interpreter free-threading] | Undefined"
+  },
+  {
+    "mode": 73000,
+    "name": "Generic Hash [Bridged: Python Interpreter with GIL]",
+    "category": "Undefined",
+    "label": "73000 | Generic Hash [Bridged: Python Interpreter with GIL] | Undefined"
+  },
+  {
+    "mode": 74000,
+    "name": "Generic Hash [Bridged: Rust]",
+    "category": "Undefined",
+    "label": "74000 | Generic Hash [Bridged: Rust] | Undefined"
+  }
+]

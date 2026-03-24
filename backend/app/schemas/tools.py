@@ -84,10 +84,6 @@ class SqliteExportResponse(BaseModel):
     columns: list[str] = Field(default_factory=list)
 
 
-class ToolAIAssistRequest(BaseModel):
-    user_input: str = Field(min_length=1, max_length=4000)
-
-
 class AIStatusResponse(BaseModel):
     configured: bool
     chat_model: str | None = None
@@ -111,35 +107,23 @@ class ToolAIResponse(BaseModel):
     result: dict[str, Any]
 
 
-class TimestampAIAssistResponse(BaseModel):
-    timestamp: str
-    timestamp_type: str
-    origin_timezone: str
-    target_timezone: str
-    explanation: str
-    confidence: str
-    warnings: list[str] = Field(default_factory=list)
-
-
-class HashcatAIAssistResponse(BaseModel):
-    hash_mode: int
-    attack_mode: Literal[0, 3]
-    wordlist_path: str | None = None
-    mask: str | None = None
-    session_name: str | None = None
-    extra_args: list[str] = Field(default_factory=list)
-    explanation: str
-    confidence: str
-    warnings: list[str] = Field(default_factory=list)
-
-
 class HashcatTaskRequest(BaseModel):
     hash_mode: int
-    attack_mode: Literal[0, 3]
+    attack_mode: Literal[0, 1, 3, 6, 7]
     wordlist_path: str | None = None
+    wordlist_file_id: str | None = None
+    secondary_wordlist_path: str | None = None
+    secondary_wordlist_file_id: str | None = None
     mask: str | None = None
     extra_args: list[str] = Field(default_factory=list)
     session_name: str | None = None
+
+
+class HashcatHashModeResponse(BaseModel):
+    mode: int
+    name: str
+    category: str
+    label: str
 
 
 class HashcatTaskStatusResponse(BaseModel):
@@ -148,6 +132,14 @@ class HashcatTaskStatusResponse(BaseModel):
     disabled_message: str | None = None
     configured: bool
     binary_path: str | None = None
+    binary_source: str | None = None
+    detected_platform: str
+    bundle_dir: str | None = None
+    bundled_binary_path: str | None = None
+    wordlists_dir: str | None = None
+    runtime_dir: str | None = None
+    default_wordlist_path: str | None = None
+    default_wordlist_name: str | None = None
     running: bool
     task_id: str | None = None
     pid: int | None = None
@@ -156,4 +148,6 @@ class HashcatTaskStatusResponse(BaseModel):
     finished_at: str | None = None
     exit_code: int | None = None
     hash_file: str | None = None
+    result_file: str | None = None
+    result_lines: list[str] = Field(default_factory=list)
     output_tail: list[str] = Field(default_factory=list)

@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import { getAiStatus, streamToolAi } from './api/ai'
-import { getHashcatStatus, stopHashcatTask } from './api/hashcat'
+import { getHashcatHashModes, getHashcatStatus, stopHashcatTask } from './api/hashcat'
 import { apiBaseUrl, parseLog, searchLog, uploadLogFile } from './api/logParser'
 import {
   exportSqliteTable,
@@ -13,6 +13,26 @@ import {
   runRegisteredToolWithoutFile,
   uploadToolFile,
 } from './api/tools'
+import {
+  getSharedPrefixLength,
+  humanizeStreamingText,
+  normalizeStreamingText,
+  sanitizeDisplayText,
+  selectStreamingDraft,
+  splitDisplayText,
+} from './utils/aiStreaming'
+import {
+  AI_TOOL_CONFIG,
+  DEFAULT_TOOL_ID,
+  HASH_ALGORITHMS,
+  HASHCAT_ATTACK_MODES,
+  SQLITE_FILTER_OPERATORS,
+  TIMEZONE_OPTIONS,
+  TIMESTAMP_OPTIONS,
+  TOOL_ICONS,
+  TOOL_ORDER,
+} from './constants/tooling'
+import type { AiToolConfig, ToolId } from './constants/tooling'
 import type {
   AiMode,
   AiStatusResponse,
@@ -24,6 +44,8 @@ import type {
 import type { AIAnalysisResult, FileUploadResponse, LogSearchResponse, ParsedLogResponse } from './types/logParser'
 import type {
   HashToolResult,
+  HashcatAttackMode,
+  HashcatHashMode,
   HashcatAIAssistResult,
   HashcatTaskStatus,
   SqliteBrowserResult,
@@ -37,44 +59,7 @@ import type {
   ToolMeta,
   ToolRunResponse,
 } from './types/tools'
-
-const TIMESTAMP_OPTIONS = [
-  { value: 'auto', label: '自动识别' },
-  { value: 'unix', label: 'UNIX' },
-  { value: 'chrome_webkit', label: 'Chrome/WebKit' },
-  { value: 'ios', label: 'iOS' },
-  { value: 'dotnet_ticks', label: '.NET Ticks' },
-  { value: 'windows_filetime', label: 'Windows FileTime' },
-  { value: 'apple_absolute_time', label: 'Apple Absolute Time' },
-]
-
-const TIMEZONE_OPTIONS = ['UTC', 'Asia/Shanghai', 'Asia/Tokyo', 'America/New_York', 'Europe/London']
-const HASH_ALGORITHMS = ['md5', 'sha1', 'sha256', 'sha512', 'sm3']
-const TOOL_ORDER = ['log_parser', 'encoding_converter', 'hash_tool', 'sqlite2csv', 'timestamp_parser', 'hashcat_gui'] as const
-const SQLITE_FILTER_OPERATORS: Array<{ value: SqliteFilterOperator; label: string }> = [
-  { value: 'contains', label: '包含' },
-  { value: 'equals', label: '等于' },
-  { value: 'starts_with', label: '前缀' },
-  { value: 'ends_with', label: '后缀' },
-  { value: 'gt', label: '大于' },
-  { value: 'gte', label: '大于等于' },
-  { value: 'lt', label: '小于' },
-  { value: 'lte', label: '小于等于' },
-  { value: 'is_null', label: '为空' },
-  { value: 'not_null', label: '非空' },
-]
-
-type ToolId = (typeof TOOL_ORDER)[number]
 type AssistantMessageStatus = 'ready' | 'streaming' | 'error'
-
-interface AiToolConfig {
-  supported: boolean
-  title: string
-  placeholder: string
-  defaultInput: string
-  requiresFile?: boolean
-  welcome: string
-}
 
 interface ChatMessage {
   id: string
@@ -93,68 +78,6 @@ interface ChatMessage {
   isHint?: boolean
 }
 
-const AI_TOOL_CONFIG: Record<ToolId, AiToolConfig> = {
-  log_parser: {
-    supported: true,
-    title: '日志研判助手',
-    placeholder: '输入你的研判问题，例如：这份日志能支持哪些结论？有哪些证据不足？',
-    defaultInput: '请从电子取证和风险研判视角概述这份日志，并指出当前证据能支持与不能支持的结论。',
-    requiresFile: true,
-    welcome: '先上传并完成日志基础解析，再直接提问。我会结合当前日志摘要、关键片段和检索结果给出研判意见。',
-  },
-  encoding_converter: {
-    supported: true,
-    title: '编码识别助手',
-    placeholder: '输入待识别的原始文本、乱码样本、Hex/Base64 片段或转义字符串。',
-    defaultInput: '这段内容最可能是什么编码或转义格式？请给出候选、置信度和建议的 CyberChef 配方。',
-    welcome: '直接把乱码样本、可疑编码串、Hex、Base64 或转义文本发给我。我会给出可能编码、置信度和 CyberChef 建议配方。',
-  },
-  hash_tool: {
-    supported: true,
-    title: '文件哈希助手',
-    placeholder: '例如：这些哈希值适合如何用于取证比对？当前结果能支持哪些后续动作？',
-    defaultInput: '请根据当前哈希结果说明它适合做哪些取证核验和后续比对。',
-    welcome: '先完成哈希计算，再直接提问。我会结合当前文件名、摘要值和算法结果，整理取证比对、完整性校验和后续排查建议。',
-  },
-  sqlite2csv: {
-    supported: true,
-    title: 'SQLite 导出助手',
-    placeholder: '例如：导出后我应该优先检查哪些表？这些表名可能对应什么取证线索？',
-    defaultInput: '请根据当前导出结果说明优先检查哪些表、适合关注哪些字段。',
-    welcome: '先加载数据库结构或预览目标表，再直接提问。我会结合当前表结构、预览数据和导出结果，给出优先检查对象与字段建议。',
-  },
-  timestamp_parser: {
-    supported: true,
-    title: '时间戳助手',
-    placeholder: '例如：1710825600、132537600000000000、Chrome 时间戳原始值等',
-    defaultInput: '请识别这段内容里的时间戳类型、原始时区和目标时区。',
-    welcome: '把原始时间戳或混杂文本直接发过来。我会判断时间戳类型、时区并自动回填左侧转换表单。',
-  },
-  hashcat_gui: {
-    supported: true,
-    title: 'Hashcat 助手',
-    placeholder: '例如：NTLM hash，使用 rockyou 字典；或提供掩码模式说明',
-    defaultInput: '请判断这段 hash 信息最可能对应的 hash_mode、attack_mode 和建议参数。',
-    welcome: '发送 hash 样本、算法线索、字典路径或掩码说明。我会给出 Hashcat 建议，并自动回填左侧参数。',
-  },
-}
-
-const TOOL_ICONS: Record<ToolId, string> = {
-  log_parser:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h8.879a1.5 1.5 0 0 1 1.06.44l3.12 3.12a1.5 1.5 0 0 1 .44 1.06V18.5A1.5 1.5 0 0 1 17.5 20h-12A1.5 1.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16.5" cy="16.5" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m18.3 18.3 1.7 1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  encoding_converter:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 9.5h2.5m-1.25 0v5m4-5-2 5m4.5-5h2m-2 0 2 5m-2-5-2 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  hash_tool:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4 4 9l5 5m6-10 5 5-5 5M14 7l-4 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  sqlite2csv:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7" ry="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 6.5v5C5 12.88 8.13 14 12 14s7-1.12 7-2.5v-5M5 11.5v6C5 18.88 8.13 20 12 20s7-1.12 7-2.5v-6" stroke="currentColor" stroke-width="1.8"/></svg>',
-  timestamp_parser:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="13" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M12 9v4l2.5 2.5M9 3h6M12 3v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  hashcat_gui:
-    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.88 8.45 7 9.72 4.12-1.27 7-5.32 7-9.72V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 9v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-}
-
-const DEFAULT_TOOL_ID: ToolId = 'log_parser'
 
 const loadingTools = ref(false)
 const sidebarQuery = ref('')
@@ -170,10 +93,13 @@ const aiStatus = ref<AiStatusResponse | null>(null)
 const aiBusy = ref(false)
 const assistantNotice = ref('')
 const assistantScrollRef = ref<HTMLElement | null>(null)
+const assistantAutoScroll = ref(true)
 
 const cyberchefFrameLoaded = ref(false)
 const cyberchefFrameError = ref(false)
 const cyberchefReloadKey = ref(0)
+const cyberchefRecipe = ref('')
+const cyberchefInput = ref('')
 
 const logSelectedFile = ref<File | null>(null)
 const logUpload = ref<FileUploadResponse | null>(null)
@@ -238,13 +164,22 @@ const timestampForm = reactive<TimestampParserParams>({
 
 const hashcatSelectedFile = ref<File | null>(null)
 const hashcatUpload = ref<FileUploadResponse | null>(null)
+const hashcatWordlistSelectedFile = ref<File | null>(null)
+const hashcatWordlistUpload = ref<FileUploadResponse | null>(null)
+const hashcatSecondaryWordlistSelectedFile = ref<File | null>(null)
+const hashcatSecondaryWordlistUpload = ref<FileUploadResponse | null>(null)
 const hashcatRunning = ref(false)
 const hashcatMessage = ref('')
 const hashcatStatus = ref<HashcatTaskStatus | null>(null)
+const hashcatHashModes = ref<HashcatHashMode[]>([])
+const hashcatModeSearch = ref('')
+const hashcatModeDropdownOpen = ref(false)
+const hashcatRuntimeInfoOpen = ref(false)
 const hashcatForm = reactive({
   hash_mode: 0,
-  attack_mode: 0 as 0 | 3,
+  attack_mode: 0 as HashcatAttackMode,
   wordlist_path: '',
+  secondary_wordlist_path: '',
   mask: '',
   extra_args_text: '',
   session_name: '',
@@ -271,6 +206,7 @@ const chatThreads = reactive<Record<ToolId, ChatMessage[]>>({
 let hashcatTimer: number | null = null
 let messageSeed = 0
 let scrollFrame: number | null = null
+let scrollForcePending = false
 
 const shellStyle = computed(() => ({
   '--left-rail-width': leftCollapsed.value ? '52px' : '280px',
@@ -335,10 +271,45 @@ const hashDisplayItems = computed(() => {
 const sqliteResult = computed(() => (sqliteResultRun.value?.result ?? null) as SqliteCsvResult | null)
 const timestampResult = computed(() => (timestampResultRun.value?.result ?? null) as TimestampParserResult | null)
 const cyberchefBaseUrl = computed(() => '/cyberchef/CyberChef.html')
-const cyberchefUrl = computed(() => `${cyberchefBaseUrl.value}?embedded=1&reload=${cyberchefReloadKey.value}`)
+const cyberchefUrl = computed(() => {
+  const query = new URLSearchParams({
+    embedded: '1',
+    reload: String(cyberchefReloadKey.value),
+  })
+  if (cyberchefRecipe.value.trim()) {
+    query.set('recipe', cyberchefRecipe.value.trim())
+  }
+  if (cyberchefInput.value) {
+    query.set('input', encodeCyberChefInput(cyberchefInput.value))
+  }
+  return `${cyberchefBaseUrl.value}?${query.toString()}`
+})
 const selectedSqliteTable = computed(() =>
   sqliteBrowser.value?.tables.find((table) => table.table_name === selectedSqliteTableName.value) ?? null,
 )
+const selectedHashcatAttackMode = computed(
+  () => HASHCAT_ATTACK_MODES.find((item) => item.value === Number(hashcatForm.attack_mode)) ?? HASHCAT_ATTACK_MODES[0],
+)
+const isHashcatPrimaryWordlistMode = computed(() => [0, 1, 6, 7].includes(Number(hashcatForm.attack_mode)))
+const isHashcatSecondaryWordlistMode = computed(() => Number(hashcatForm.attack_mode) === 1)
+const isHashcatMaskMode = computed(() => [3, 6, 7].includes(Number(hashcatForm.attack_mode)))
+const selectedHashcatHashMode = computed(() =>
+  hashcatHashModes.value.find((item) => item.mode === Number(hashcatForm.hash_mode)) ?? null,
+)
+const sortedHashcatHashModes = computed(() => [...hashcatHashModes.value].sort((left, right) => left.mode - right.mode))
+const filteredHashcatHashModes = computed(() => {
+  const keyword = hashcatModeSearch.value.trim().toLowerCase()
+  const source = sortedHashcatHashModes.value
+  if (!keyword) {
+    return source.slice(0, 200)
+  }
+  return source
+    .filter((item) => item.label.toLowerCase().includes(keyword) || String(item.mode).includes(keyword))
+    .slice(0, 200)
+})
+const hashcatModeTriggerLabel = computed(() => selectedHashcatHashMode.value?.label || `mode ${hashcatForm.hash_mode}`)
+const hasHashcatDefaultWordlist = computed(() => Boolean(hashcatStatus.value?.default_wordlist_path))
+const hashcatDefaultWordlistDisplay = computed(() => hashcatStatus.value?.default_wordlist_name || 'rockyou.txt')
 
 function getToolOrder(toolId: string): number {
   const index = TOOL_ORDER.indexOf(toolId as ToolId)
@@ -348,11 +319,6 @@ function getToolOrder(toolId: string): number {
 function createMessageId(): string {
   messageSeed += 1
   return `msg-${messageSeed}`
-}
-
-function toolBadge(tool: ToolMeta): string {
-  const parts = tool.tool_id.split('_').filter(Boolean)
-  return (parts[0]?.[0] || tool.name[0] || 'T').toUpperCase()
 }
 
 function toolIcon(toolId: string): string {
@@ -366,48 +332,18 @@ function formatMessageTime(timestamp: number): string {
   })
 }
 
-function sanitizeDisplayText(value: string | null | undefined): string {
-  const text = (value || '')
-    .replace(/\r\n/g, '\n')
-    .replace(/^\uFEFF/, '')
-    .replace(/\u200B/g, '')
-    .replace(/(^|\n)\s*\d+\.\s*(?=\n|$)/g, '$1')
-  const cleaned = text
-    .split('\n')
-    .filter((line, index, lines) => {
-      const trimmed = line.trim()
-      if (!trimmed) {
-        const prev = lines[index - 1]?.trim()
-        return Boolean(prev)
-      }
-      return !/^\d+\.\s*$/.test(trimmed)
-    })
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-  return cleaned
-}
-
-function normalizeStreamingText(value: string | null | undefined): string {
-  return (value || '').replace(/\r\n/g, '\n').replace(/^\uFEFF/, '').replace(/\u200B/g, '')
-}
-
-function humanizeStreamingText(rawContent: string): string {
-  const decoded = normalizeStreamingText(rawContent)
-    .replace(/\\"/g, '"')
-    .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '\r')
-    .replace(/\\t/g, '\t')
-
-  const loose = decoded
-    .replace(/\\u[\dA-Fa-f]{4}/g, ' ')
-    .replace(/[{}[\]"]/g, ' ')
-    .replace(/\b(?:summary|explanation|reasoning|findings|recommendations|timeline_summary|risk_level)\b\s*:/g, ' ')
-    .replace(/[,:]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  return sanitizeDisplayText(loose || decoded)
+function encodeCyberChefInput(value: string): string {
+  if (!value) {
+    return ''
+  }
+  const bytes = new TextEncoder().encode(value)
+  let binary = ''
+  const chunkSize = 0x8000
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, offset + chunkSize)
+    binary += String.fromCharCode(...chunk)
+  }
+  return btoa(binary)
 }
 
 function fragmentTone(fragment: { title: string; snippet: string[] }): 'error' | 'warning' | 'neutral' {
@@ -601,11 +537,22 @@ function applyAiResult(toolId: ToolId, result: Record<string, unknown>): void {
     const payload = result as unknown as HashcatAIAssistResult
     hashcatForm.hash_mode = payload.hash_mode
     hashcatForm.attack_mode = payload.attack_mode
-    hashcatForm.wordlist_path = payload.wordlist_path ?? ''
-    hashcatForm.mask = payload.mask ?? ''
+    setHashcatModeInput(payload.hash_mode)
+    hashcatForm.wordlist_path =
+      [0, 1, 6, 7].includes(payload.attack_mode) ? payload.wordlist_path ?? hashcatStatus.value?.default_wordlist_name ?? 'rockyou.txt' : ''
+    hashcatForm.secondary_wordlist_path = payload.attack_mode === 1 ? payload.secondary_wordlist_path ?? '' : ''
+    hashcatForm.mask = [3, 6, 7].includes(payload.attack_mode) ? payload.mask ?? '' : ''
     hashcatForm.session_name = payload.session_name ?? ''
     hashcatForm.extra_args_text = payload.extra_args.join(' ')
     hashcatMessage.value = 'AI 建议已回填到 Hashcat 表单。'
+  }
+
+  if (toolId === 'encoding_converter') {
+    const payload = result as unknown as EncodingAssistResult
+    cyberchefRecipe.value = payload.cyberchef_recipe?.trim() || ''
+    cyberchefInput.value = payload.cyberchef_input ?? ''
+    assistantNotice.value = 'AI 已回填 CyberChef 参数。'
+    reloadCyberChef()
   }
 }
 
@@ -667,23 +614,87 @@ function currentAiContext(toolId: ToolId): Record<string, unknown> {
     }
   }
 
+  if (toolId === 'hashcat_gui') {
+    return {
+      upload: hashcatUpload.value
+        ? {
+            file_id: hashcatUpload.value.file_id,
+            original_name: hashcatUpload.value.original_name,
+            created_at: hashcatUpload.value.created_at,
+          }
+        : null,
+      current_form: {
+        hash_mode: Number(hashcatForm.hash_mode),
+        attack_mode: Number(hashcatForm.attack_mode),
+        wordlist_path: hashcatForm.wordlist_path || null,
+        secondary_wordlist_path: hashcatForm.secondary_wordlist_path || null,
+        mask: hashcatForm.mask || null,
+        session_name: hashcatForm.session_name || null,
+        extra_args: parseExtraArgs(hashcatForm.extra_args_text),
+      },
+      runtime: hashcatStatus.value
+        ? {
+            configured: hashcatStatus.value.configured,
+            detected_platform: hashcatStatus.value.detected_platform,
+            default_wordlist_name: hashcatStatus.value.default_wordlist_name,
+            default_wordlist_path: hashcatStatus.value.default_wordlist_path,
+            runtime_dir: hashcatStatus.value.runtime_dir,
+          }
+        : null,
+      uploaded_wordlist: hashcatWordlistUpload.value
+        ? {
+            file_id: hashcatWordlistUpload.value.file_id,
+            original_name: hashcatWordlistUpload.value.original_name,
+            created_at: hashcatWordlistUpload.value.created_at,
+          }
+        : null,
+      uploaded_secondary_wordlist: hashcatSecondaryWordlistUpload.value
+        ? {
+            file_id: hashcatSecondaryWordlistUpload.value.file_id,
+            original_name: hashcatSecondaryWordlistUpload.value.original_name,
+            created_at: hashcatSecondaryWordlistUpload.value.created_at,
+          }
+        : null,
+    }
+  }
+
   return {}
 }
 
-async function scrollChatToBottom(): Promise<void> {
+function isAssistantScrollNearBottom(node: HTMLElement): boolean {
+  return node.scrollHeight - (node.scrollTop + node.clientHeight) <= 48
+}
+
+function handleAssistantScroll(): void {
+  const node = assistantScrollRef.value
+  if (!node) {
+    assistantAutoScroll.value = true
+    return
+  }
+  assistantAutoScroll.value = isAssistantScrollNearBottom(node)
+}
+
+async function scrollChatToBottom(force = false): Promise<void> {
   await nextTick()
   const node = assistantScrollRef.value
   if (!node) return
+  if (!force && !assistantAutoScroll.value) return
   node.scrollTop = node.scrollHeight
+  if (force) {
+    assistantAutoScroll.value = true
+  }
 }
 
-function scheduleScrollChatToBottom(): void {
+function scheduleScrollChatToBottom(force = false): void {
+  scrollForcePending = scrollForcePending || force
   if (scrollFrame !== null) {
     return
   }
   scrollFrame = window.requestAnimationFrame(() => {
     scrollFrame = null
-    void scrollChatToBottom()
+    const nextForce = scrollForcePending
+    scrollForcePending = false
+    void scrollChatToBottom(nextForce)
   })
 }
 
@@ -751,6 +762,25 @@ async function loadAiMeta(): Promise<void> {
   }
 }
 
+async function loadHashcatHashModes(): Promise<void> {
+  const hashcatTool = tools.value.find((tool) => tool.tool_id === 'hashcat_gui') ?? null
+  if (hashcatTool && !hashcatTool.enabled) {
+    hashcatHashModes.value = []
+    return
+  }
+  try {
+    hashcatHashModes.value = await getHashcatHashModes()
+    const currentMode = Number(hashcatForm.hash_mode)
+    if (Number.isInteger(currentMode) && currentMode >= 0 && hashcatModeSearch.value.trim()) {
+      if (parseHashcatModeValue(hashcatModeSearch.value) === currentMode) {
+        setHashcatModeInput(currentMode)
+      }
+    }
+  } catch {
+    hashcatHashModes.value = []
+  }
+}
+
 async function refreshHashcatStatus(): Promise<void> {
   const hashcatTool = tools.value.find((tool) => tool.tool_id === 'hashcat_gui') ?? null
   if (hashcatTool && !hashcatTool.enabled) {
@@ -760,6 +790,14 @@ async function refreshHashcatStatus(): Promise<void> {
       disabled_message: hashcatTool.disabled_message,
       configured: false,
       binary_path: null,
+      binary_source: null,
+      detected_platform: 'unknown',
+      bundle_dir: null,
+      bundled_binary_path: null,
+      wordlists_dir: null,
+      runtime_dir: null,
+      default_wordlist_path: null,
+      default_wordlist_name: null,
       running: false,
       task_id: null,
       pid: null,
@@ -768,6 +806,8 @@ async function refreshHashcatStatus(): Promise<void> {
       finished_at: null,
       exit_code: null,
       hash_file: null,
+      result_file: null,
+      result_lines: [],
       output_tail: [],
     }
     return
@@ -799,6 +839,14 @@ function setSqliteSelectedFile(file: File | null): void {
 
 function setHashcatSelectedFile(file: File | null): void {
   hashcatSelectedFile.value = file
+}
+
+function setHashcatWordlistSelectedFile(file: File | null): void {
+  hashcatWordlistSelectedFile.value = file
+}
+
+function setHashcatSecondaryWordlistSelectedFile(file: File | null): void {
+  hashcatSecondaryWordlistSelectedFile.value = file
 }
 
 async function uploadLog(): Promise<void> {
@@ -891,6 +939,85 @@ async function uploadSharedToolFile(
 
 const uploadHashToolFile = () => uploadSharedToolFile(hashSelectedFile, hashUpload, hashMessage, 'hash_tool')
 const uploadHashcatFile = () => uploadSharedToolFile(hashcatSelectedFile, hashcatUpload, hashcatMessage, 'hashcat_gui')
+
+async function uploadHashcatWordlistFile(): Promise<void> {
+  await uploadSharedToolFile(hashcatWordlistSelectedFile, hashcatWordlistUpload, hashcatMessage, 'hashcat_gui')
+  if (hashcatWordlistUpload.value) {
+    hashcatMessage.value = `字典上传完成：${hashcatWordlistUpload.value.original_name}，启动时将优先使用该文件。`
+  }
+}
+
+async function uploadHashcatSecondaryWordlistFile(): Promise<void> {
+  await uploadSharedToolFile(
+    hashcatSecondaryWordlistSelectedFile,
+    hashcatSecondaryWordlistUpload,
+    hashcatMessage,
+    'hashcat_gui',
+  )
+  if (hashcatSecondaryWordlistUpload.value) {
+    hashcatMessage.value = `第二字典上传完成：${hashcatSecondaryWordlistUpload.value.original_name}。`
+  }
+}
+
+function clearHashcatWordlistUpload(): void {
+  hashcatWordlistUpload.value = null
+  hashcatWordlistSelectedFile.value = null
+  hashcatMessage.value = '已清除自定义字典，将改用手动路径或默认 rockyou.txt。'
+}
+
+function clearHashcatSecondaryWordlistUpload(): void {
+  hashcatSecondaryWordlistUpload.value = null
+  hashcatSecondaryWordlistSelectedFile.value = null
+  hashcatMessage.value = '已清除第二字典上传记录。'
+}
+
+function parseHashcatModeValue(value: string): number | null {
+  const match = value.trim().match(/^(\d+)/)
+  if (!match) {
+    return null
+  }
+  const mode = Number(match[1])
+  return Number.isInteger(mode) && mode >= 0 ? mode : null
+}
+
+function setHashcatModeInput(mode: number): void {
+  const selected = hashcatHashModes.value.find((item) => item.mode === mode) ?? null
+  hashcatModeSearch.value = selected?.label || String(mode)
+}
+
+function applyHashcatMode(mode: number): void {
+  hashcatForm.hash_mode = mode
+  setHashcatModeInput(mode)
+}
+
+function handleHashcatModeInput(event: Event): void {
+  const target = event.target as HTMLInputElement
+  hashcatModeSearch.value = target.value
+  const parsedMode = parseHashcatModeValue(target.value)
+  if (parsedMode !== null) {
+    hashcatForm.hash_mode = parsedMode
+  }
+}
+
+function selectHashcatHashMode(mode: number): void {
+  if (Number.isInteger(mode) && mode >= 0) {
+    applyHashcatMode(mode)
+    hashcatModeDropdownOpen.value = false
+  }
+}
+
+function handleHashcatModeDropdownToggle(event: Event): void {
+  const target = event.target as HTMLDetailsElement
+  hashcatModeDropdownOpen.value = Boolean(target?.open)
+  if (!hashcatModeDropdownOpen.value) {
+    setHashcatModeInput(Number(hashcatForm.hash_mode))
+  }
+}
+
+function handleHashcatRuntimeToggle(event: Event): void {
+  const target = event.target as HTMLDetailsElement
+  hashcatRuntimeInfoOpen.value = Boolean(target?.open)
+}
 
 async function uploadSqliteFile(): Promise<void> {
   await uploadSharedToolFile(sqliteSelectedFile, sqliteUpload, sqliteMessage, 'sqlite2csv')
@@ -1052,8 +1179,13 @@ async function runHashcatTask(): Promise<void> {
     await runRegisteredTool('hashcat_gui', hashcatUpload.value.file_id, {
       hash_mode: Number(hashcatForm.hash_mode),
       attack_mode: Number(hashcatForm.attack_mode),
-      wordlist_path: hashcatForm.wordlist_path || undefined,
-      mask: hashcatForm.mask || undefined,
+      wordlist_path: isHashcatPrimaryWordlistMode.value ? hashcatForm.wordlist_path || undefined : undefined,
+      wordlist_file_id: isHashcatPrimaryWordlistMode.value ? hashcatWordlistUpload.value?.file_id || undefined : undefined,
+      secondary_wordlist_path: isHashcatSecondaryWordlistMode.value ? hashcatForm.secondary_wordlist_path || undefined : undefined,
+      secondary_wordlist_file_id: isHashcatSecondaryWordlistMode.value
+        ? hashcatSecondaryWordlistUpload.value?.file_id || undefined
+        : undefined,
+      mask: isHashcatMaskMode.value ? hashcatForm.mask || undefined : undefined,
       session_name: hashcatForm.session_name || undefined,
       extra_args: parseExtraArgs(hashcatForm.extra_args_text),
     })
@@ -1150,11 +1282,21 @@ async function runAiForActiveTool(): Promise<void> {
 
   const thread = chatThreads[toolId]
   const userMessage = createUserMessage(toolId, userInput)
-  const assistantMessage = createAssistantMessage(toolId, aiMode.value)
+  const assistantMessage = reactive(createAssistantMessage(toolId, aiMode.value)) as ChatMessage
   thread.push(userMessage, assistantMessage)
   aiInputs[toolId] = ''
   aiBusy.value = true
-  scheduleScrollChatToBottom()
+  assistantAutoScroll.value = true
+  scheduleScrollChatToBottom(true)
+
+    let targetUnits: string[] = []
+    let typingTimer: number | null = null
+    const clearTypewriterTimer = () => {
+      if (typingTimer !== null) {
+        window.clearTimeout(typingTimer)
+        typingTimer = null
+    }
+  }
 
   try {
     if (!config.supported) {
@@ -1178,82 +1320,102 @@ async function runAiForActiveTool(): Promise<void> {
     let pendingReasoning = ''
     let pendingContent = ''
     let pendingContentPreview = ''
-    let flushTimer: number | null = null
-    let contentFlushTimer: number | null = null
+    let displayedUnits: string[] = []
 
-    const flushReasoning = () => {
-      if (!pendingReasoning) {
+    const scheduleTypewriter = () => {
+      if (typingTimer !== null) {
         return
       }
-      assistantMessage.reasoning = normalizeStreamingText(pendingReasoning)
-      pendingReasoning = ''
-      assistantMessage.showReasoning = aiMode.value === 'reasoner'
+
+      const step = () => {
+        const prefixLength = getSharedPrefixLength(displayedUnits, targetUnits)
+        if (prefixLength < displayedUnits.length) {
+          displayedUnits = displayedUnits.slice(0, prefixLength)
+        }
+
+        if (displayedUnits.length < targetUnits.length) {
+          displayedUnits = displayedUnits.concat(targetUnits[displayedUnits.length] as string)
+        }
+
+        assistantMessage.content = displayedUnits.join('')
+        scheduleScrollChatToBottom()
+
+        if (displayedUnits.length < targetUnits.length) {
+          typingTimer = window.setTimeout(step, 24)
+          return
+        }
+
+        typingTimer = null
+      }
+
+      typingTimer = window.setTimeout(step, 24)
+    }
+
+    const syncAssistantContentQueue = (nextContent: string) => {
+      const normalizedContent = sanitizeDisplayText(nextContent)
+      if (!normalizedContent) {
+        return
+      }
+
+      targetUnits = splitDisplayText(normalizedContent)
+      scheduleTypewriter()
+    }
+
+    const currentDraftContent = () => {
+      return selectStreamingDraft(toolId, pendingContent, pendingContentPreview)
+    }
+
+    const syncAssistantDraft = () => {
+      if (pendingReasoning) {
+        assistantMessage.reasoning = normalizeStreamingText(pendingReasoning)
+        assistantMessage.showReasoning = aiMode.value === 'reasoner'
+      }
+
+      const draftContent = currentDraftContent()
+      if (draftContent) {
+        syncAssistantContentQueue(draftContent)
+      } else if (pendingContent.trim() && !assistantMessage.content) {
+        syncAssistantContentQueue('正在整理结构化结果...')
+      }
+
       scheduleScrollChatToBottom()
     }
 
-    const queueReasoning = (event: Extract<ToolAiStreamEvent, { type: 'reasoning' }>) => {
-      pendingReasoning = event.full_text || `${pendingReasoning}${event.delta}`
-      if (flushTimer !== null) {
-        return
-      }
-      flushTimer = window.setTimeout(() => {
-        flushTimer = null
-        flushReasoning()
-      }, 80)
-    }
-
-    const flushContent = () => {
-      if (!pendingContent) {
-        return
-      }
-      assistantMessage.content = sanitizeDisplayText(pendingContentPreview || humanizeStreamingText(pendingContent))
-      scheduleScrollChatToBottom()
-    }
-
-    const queueContent = (event: Extract<ToolAiStreamEvent, { type: 'content' }>) => {
-      pendingContent = event.full_text || `${pendingContent}${event.delta}`
-      pendingContentPreview = event.preview || ''
-      if (contentFlushTimer !== null) {
-        return
-      }
-      contentFlushTimer = window.setTimeout(() => {
-        contentFlushTimer = null
-        flushContent()
-      }, 80)
+    const paintAssistantDraft = () => {
+      syncAssistantDraft()
     }
 
     await streamToolAi(payload, {
       onEvent: (event: ToolAiStreamEvent) => {
         if (event.type === 'reasoning') {
           if (aiMode.value === 'reasoner') {
-            queueReasoning(event)
+            pendingReasoning = event.full_text || `${pendingReasoning}${event.delta}`
+            assistantMessage.progress = Math.max(assistantMessage.progress, 36)
+            assistantMessage.progressLabel = '正在推理'
+            paintAssistantDraft()
           }
           return
         }
         if (event.type === 'content') {
-          queueContent(event)
+          pendingContent = event.full_text || `${pendingContent}${event.delta}`
+          pendingContentPreview = event.preview || pendingContentPreview
+          assistantMessage.progress = Math.max(assistantMessage.progress, 72)
+          assistantMessage.progressLabel = '正在输出'
+          paintAssistantDraft()
           return
         }
         if (event.type === 'final') {
           receivedFinal = true
-          if (flushTimer !== null) {
-            window.clearTimeout(flushTimer)
-            flushTimer = null
-          }
-          if (contentFlushTimer !== null) {
-            window.clearTimeout(contentFlushTimer)
-            contentFlushTimer = null
-          }
-          flushReasoning()
-          flushContent()
+          pendingReasoning = event.reasoning || pendingReasoning
           assistantMessage.status = 'ready'
           assistantMessage.source = event.source
           assistantMessage.mode = event.mode
           assistantMessage.result = event.result
           assistantMessage.reasoning = sanitizeDisplayText(event.reasoning || assistantMessage.reasoning)
-          assistantMessage.content = summarizeToolResult(toolId, event.result)
+          syncAssistantContentQueue(summarizeToolResult(toolId, event.result))
+          assistantMessage.progress = 100
+          assistantMessage.progressLabel = event.source === 'fallback' ? '已完成（回退）' : '已完成'
           applyAiResult(toolId, event.result)
-          scheduleScrollChatToBottom()
         }
       },
     })
@@ -1261,6 +1423,9 @@ async function runAiForActiveTool(): Promise<void> {
       throw new Error('AI 流式调用未返回最终结果。')
     }
   } catch (error) {
+    clearTypewriterTimer()
+    targetUnits = []
+    assistantNotice.value = ''
     assistantMessage.status = 'error'
     assistantMessage.content = sanitizeDisplayText(getErrorMessage(error, 'AI 调用失败。'))
   } finally {
@@ -1270,20 +1435,47 @@ async function runAiForActiveTool(): Promise<void> {
 }
 
 watch(
+  () => hashcatForm.attack_mode,
+  (attackMode) => {
+    if ([0, 1, 6, 7].includes(Number(attackMode))) {
+      if (!hashcatForm.wordlist_path && !hashcatWordlistUpload.value && hashcatStatus.value?.default_wordlist_name) {
+        hashcatForm.wordlist_path = hashcatStatus.value.default_wordlist_name
+      }
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => hashcatStatus.value?.default_wordlist_name,
+  (defaultWordlistName) => {
+    if (!defaultWordlistName || !isHashcatPrimaryWordlistMode.value) {
+      return
+    }
+    if (!hashcatForm.wordlist_path && !hashcatWordlistUpload.value) {
+      hashcatForm.wordlist_path = defaultWordlistName
+    }
+  },
+  { immediate: true },
+)
+
+watch(
   activeToolId,
   (toolId) => {
     ensureThread(toolId)
     assistantNotice.value = ''
+    hashcatModeDropdownOpen.value = false
     if (toolId === 'encoding_converter') {
       reloadCyberChef()
     }
     if (toolId === 'hashcat_gui') {
       const hashcatTool = tools.value.find((tool) => tool.tool_id === 'hashcat_gui')
       if (hashcatTool?.enabled) {
-        void refreshHashcatStatus()
+        void Promise.all([refreshHashcatStatus(), loadHashcatHashModes()])
       }
     }
-    scheduleScrollChatToBottom()
+    assistantAutoScroll.value = true
+    scheduleScrollChatToBottom(true)
   },
   { immediate: true },
 )
@@ -1291,12 +1483,14 @@ watch(
 onMounted(async () => {
   await Promise.all([loadTools(), loadAiMeta()])
   ensureThread(activeToolId.value)
+  void loadHashcatHashModes()
   hashcatTimer = window.setInterval(() => {
     if (shouldRefreshHashcatStatus()) {
       void refreshHashcatStatus()
     }
   }, 5000)
-  scheduleScrollChatToBottom()
+  assistantAutoScroll.value = true
+  scheduleScrollChatToBottom(true)
 })
 
 onBeforeUnmount(() => {
@@ -1357,14 +1551,13 @@ onBeforeUnmount(() => {
             :key="tool.tool_id"
             type="button"
             class="tool-nav-item"
-            :class="{ active: activeToolId === tool.tool_id, disabled: !tool.enabled, compact: leftCollapsed }"
-            :title="leftCollapsed ? `${tool.name}：${tool.description}` : tool.name"
+            :class="{ active: activeToolId === tool.tool_id, disabled: !tool.enabled }"
+            :title="tool.name"
             @click="pickActiveTool(tool.tool_id)"
           >
             <span class="tool-nav-badge" v-html="toolIcon(tool.tool_id)" />
-            <span v-if="!leftCollapsed" class="tool-nav-copy">
+            <span class="tool-nav-copy">
               <span class="tool-nav-name">{{ tool.name }}</span>
-              <span class="tool-nav-desc">{{ tool.description }}</span>
             </span>
           </button>
         </div>
@@ -1471,7 +1664,7 @@ onBeforeUnmount(() => {
                 <div class="content-head">
                   <div>
                     <div class="section-title">编码转换</div>
-                    <p class="section-copy">这里直接嵌入 CyberChef 工作台，用于手工验证、编码转换和配方试验。</p>
+                    <p class="section-copy">一体化嵌入 CyberChef 工作台，用于手工验证、编码转换和配方试验。</p>
                   </div>
                   <div class="button-row">
                     <a class="btn btn-outline-primary" :href="cyberchefBaseUrl" target="_blank" rel="noreferrer">新标签打开 CyberChef</a>
@@ -1502,7 +1695,7 @@ onBeforeUnmount(() => {
             <div class="workspace-column narrow">
               <section class="surface-card">
                 <div class="section-title">文件输入</div>
-                <p class="section-copy">上传目标文件并按需选择算法，生成固定摘要结果。</p>
+                <p class="section-copy">上传目标文件并按需选择算法，计算摘要。</p>
                 <div class="action-group mt-3">
                   <input class="form-control" type="file" @change="handleFileSelection($event, setHashSelectedFile)" />
                   <button class="btn btn-outline-primary" @click="uploadHashToolFile">上传文件</button>
@@ -1736,7 +1929,7 @@ onBeforeUnmount(() => {
             <div class="workspace-column wide single-span">
               <section class="surface-card">
                 <div class="section-title">时间戳转换</div>
-                <p class="section-copy">右侧聊天框负责智能识别，这里保留确定性参数校正和转换结果。</p>
+                <p class="section-copy">输入各类时间戳进行转换，右侧聊天框支持智能识别。</p>
                 <div class="two-col-grid mt-3">
                   <div>
                     <label class="mini-title d-block mb-2">时间戳</label>
@@ -1794,7 +1987,7 @@ onBeforeUnmount(() => {
             <div class="workspace-column wide single-span">
               <section class="surface-card">
                 <div class="section-title">Hashcat 控制台</div>
-                <p class="section-copy">右侧聊天框负责 Hash 类型识别与参数建议，这里保留文件上传、参数确认和任务控制。</p>
+                <p class="section-copy">右侧聊天框负责 Hash 类型识别与参数建议，这里保留 Hash 文件、模式选择、字典/组合/掩码参数和任务控制。</p>
                 <div class="two-col-grid mt-3">
                   <div>
                     <label class="mini-title d-block mb-2">Hash 文件</label>
@@ -1802,27 +1995,143 @@ onBeforeUnmount(() => {
                     <button class="btn btn-outline-primary mt-3" @click="uploadHashcatFile">上传 hash 文件</button>
                   </div>
                   <div>
-                    <label class="mini-title d-block mb-2">Hash 模式</label>
-                    <input v-model="hashcatForm.hash_mode" class="form-control" type="number" min="0" />
-                  </div>
-                  <div>
                     <label class="mini-title d-block mb-2">攻击模式</label>
                     <select v-model="hashcatForm.attack_mode" class="form-control">
-                      <option :value="0">0 - 字典模式</option>
-                      <option :value="3">3 - 掩码模式</option>
+                      <option v-for="item in HASHCAT_ATTACK_MODES" :key="item.value" :value="item.value">{{ item.label }}</option>
                     </select>
+                    <div class="info-row mt-2">{{ selectedHashcatAttackMode.label }}</div>
                   </div>
                   <div>
                     <label class="mini-title d-block mb-2">会话名</label>
                     <input v-model="hashcatForm.session_name" class="form-control" type="text" placeholder="可选" />
                   </div>
-                  <div>
-                    <label class="mini-title d-block mb-2">字典路径</label>
-                    <input v-model="hashcatForm.wordlist_path" class="form-control" type="text" placeholder="攻击模式 0 时使用" />
+                  <div v-if="isHashcatPrimaryWordlistMode">
+                    <label class="mini-title d-block mb-2">主字典路径</label>
+                    <input
+                      v-model="hashcatForm.wordlist_path"
+                      class="form-control"
+                      type="text"
+                      :disabled="!isHashcatPrimaryWordlistMode"
+                      :placeholder="
+                        hasHashcatDefaultWordlist
+                          ? `未填写时默认使用 ${hashcatDefaultWordlistDisplay}`
+                          : '未发现内置 rockyou.txt，请上传字典或手动填写路径'
+                      "
+                    />
+                    <div class="info-row mt-2">
+                      {{
+                        hashcatWordlistUpload
+                          ? `已上传字典：${hashcatWordlistUpload.original_name}，启动时优先使用该文件。`
+                          : hasHashcatDefaultWordlist
+                            ? `未填写时默认使用 ${hashcatDefaultWordlistDisplay}。`
+                            : '当前未发现内置 rockyou.txt，请上传字典或手动填写路径。'
+                      }}
+                    </div>
                   </div>
-                  <div>
+                  <div v-if="isHashcatSecondaryWordlistMode">
+                    <label class="mini-title d-block mb-2">第二字典路径</label>
+                    <input
+                      v-model="hashcatForm.secondary_wordlist_path"
+                      class="form-control"
+                      type="text"
+                      :disabled="!isHashcatSecondaryWordlistMode"
+                      placeholder="组合模式下必填，可手动填写或上传第二字典"
+                    />
+                    <div class="info-row mt-2">
+                      {{
+                        hashcatSecondaryWordlistUpload
+                          ? `已上传第二字典：${hashcatSecondaryWordlistUpload.original_name}，启动时优先使用该文件。`
+                          : '组合模式必须提供第二字典路径或上传第二字典。'
+                      }}
+                    </div>
+                  </div>
+                  <div v-if="isHashcatMaskMode">
                     <label class="mini-title d-block mb-2">掩码</label>
-                    <input v-model="hashcatForm.mask" class="form-control" type="text" placeholder="攻击模式 3 时使用" />
+                    <input
+                      v-model="hashcatForm.mask"
+                      class="form-control"
+                      type="text"
+                      :disabled="!isHashcatMaskMode"
+                      :placeholder="
+                        Number(hashcatForm.attack_mode) === 6
+                          ? '例如 ?d?d?d?d，表示字典 + 后缀掩码'
+                          : Number(hashcatForm.attack_mode) === 7
+                            ? '例如 ?d?d?d?d，表示前缀掩码 + 字典'
+                            : '例如 ?d?d?d?d?d'
+                      "
+                    />
+                  </div>
+                </div>
+                <div class="soft-panel mt-3">
+                  <div class="soft-title">Hash 模式 / Hash 类型</div>
+                  <details class="hashcat-mode-dropdown mt-3" :open="hashcatModeDropdownOpen" @toggle="handleHashcatModeDropdownToggle">
+                    <summary class="hashcat-mode-trigger">
+                      <span class="hashcat-mode-trigger-label">{{ hashcatModeTriggerLabel }}</span>
+                      <span class="hashcat-mode-trigger-arrow">{{ hashcatModeDropdownOpen ? '-' : '+' }}</span>
+                    </summary>
+                    <div class="hashcat-mode-dropdown-body">
+                      <input
+                        :value="hashcatModeSearch"
+                        class="form-control"
+                        type="text"
+                        placeholder="输入模式号、算法名或分类后筛选，也可直接输入数字"
+                        @input="handleHashcatModeInput"
+                        @change="handleHashcatModeInput"
+                      />
+                      <div class="hashcat-mode-option-list">
+                        <button
+                          v-for="item in filteredHashcatHashModes"
+                          :key="item.mode"
+                          type="button"
+                          class="hashcat-mode-option"
+                          :class="{ active: selectedHashcatHashMode?.mode === item.mode }"
+                          @click="selectHashcatHashMode(item.mode)"
+                        >
+                          {{ item.label }}
+                        </button>
+                      </div>
+                      <div v-if="!filteredHashcatHashModes.length" class="info-row mt-2">未匹配到候选类型，可直接输入数字模式值。</div>
+                    </div>
+                  </details>
+                </div>
+                <div v-if="isHashcatPrimaryWordlistMode" class="mt-3">
+                  <label class="mini-title d-block mb-2">主字典上传</label>
+                  <div class="button-row">
+                    <input
+                      class="form-control"
+                      type="file"
+                      accept=".txt,.dict,.lst,.wordlist"
+                      :disabled="!isHashcatPrimaryWordlistMode"
+                      @change="handleFileSelection($event, setHashcatWordlistSelectedFile)"
+                    />
+                    <button class="btn btn-outline-primary" :disabled="!isHashcatPrimaryWordlistMode" @click="uploadHashcatWordlistFile">
+                      上传字典
+                    </button>
+                    <button class="btn btn-outline-secondary" :disabled="!hashcatWordlistUpload" @click="clearHashcatWordlistUpload">
+                      清除已上传字典
+                    </button>
+                  </div>
+                </div>
+                <div v-if="isHashcatSecondaryWordlistMode" class="mt-3">
+                  <label class="mini-title d-block mb-2">第二字典上传</label>
+                  <div class="button-row">
+                    <input
+                      class="form-control"
+                      type="file"
+                      accept=".txt,.dict,.lst,.wordlist"
+                      :disabled="!isHashcatSecondaryWordlistMode"
+                      @change="handleFileSelection($event, setHashcatSecondaryWordlistSelectedFile)"
+                    />
+                    <button class="btn btn-outline-primary" :disabled="!isHashcatSecondaryWordlistMode" @click="uploadHashcatSecondaryWordlistFile">
+                      上传第二字典
+                    </button>
+                    <button
+                      class="btn btn-outline-secondary"
+                      :disabled="!hashcatSecondaryWordlistUpload"
+                      @click="clearHashcatSecondaryWordlistUpload"
+                    >
+                      清除第二字典
+                    </button>
                   </div>
                 </div>
                 <div class="mt-3">
@@ -1838,7 +2147,7 @@ onBeforeUnmount(() => {
 
               <section class="surface-card">
                 <div class="section-title">运行状态</div>
-                <p class="section-copy">保留命令和输出尾部，便于确认实际执行情况。</p>
+                <p class="section-copy">保留破解结果、命令和输出尾部，便于确认是否成功命中明文。</p>
                 <div v-if="!hashcatStatus" class="empty-state">状态加载中...</div>
                 <template v-else>
                   <div class="metric-grid compact-grid">
@@ -1861,6 +2170,10 @@ onBeforeUnmount(() => {
                   </div>
                   <div class="stack-list mt-4">
                     <div class="soft-panel">
+                      <div class="soft-title">运行结果</div>
+                      <pre class="code-box mt-3">{{ (hashcatStatus.result_lines ?? []).join('\n') || '当前暂无破解结果' }}</pre>
+                    </div>
+                    <div class="soft-panel">
                       <div class="soft-title">执行命令</div>
                       <pre class="code-box compact mt-3">{{ hashcatStatus.command.join(' ') || '当前无命令' }}</pre>
                     </div>
@@ -1868,6 +2181,17 @@ onBeforeUnmount(() => {
                       <div class="soft-title">控制台输出</div>
                       <pre class="code-box mt-3">{{ (hashcatStatus.output_tail ?? []).join('\n') || '当前暂无输出。' }}</pre>
                     </div>
+                    <details class="soft-panel" :open="hashcatRuntimeInfoOpen" @toggle="handleHashcatRuntimeToggle">
+                      <summary class="soft-title">运行时发现</summary>
+                      <div class="info-row mt-3">平台：{{ hashcatStatus.detected_platform }}</div>
+                      <div class="info-row mt-2">来源：{{ hashcatStatus.binary_source || '未发现' }}</div>
+                      <div class="info-row mt-2">当前二进制：{{ hashcatStatus.binary_path || '--' }}</div>
+                      <div class="info-row mt-2">Bundle 目录：{{ hashcatStatus.bundle_dir || '--' }}</div>
+                      <div class="info-row mt-2">建议二进制路径：{{ hashcatStatus.bundled_binary_path || '--' }}</div>
+                      <div class="info-row mt-2">字典目录：{{ hashcatStatus.wordlists_dir || '--' }}</div>
+                      <div class="info-row mt-2">默认字典：{{ hashcatStatus.default_wordlist_name || '--' }}</div>
+                      <div class="info-row mt-2">运行目录：{{ hashcatStatus.runtime_dir || '--' }}</div>
+                    </details>
                   </div>
                 </template>
               </section>
@@ -1898,7 +2222,7 @@ onBeforeUnmount(() => {
           <div class="assistant-meta">
             <span class="meta-pill meta-pill-muted">{{ currentAiModelLabel }}</span>
             <span class="meta-pill" :class="aiStatus?.configured ? 'meta-pill-success' : 'meta-pill-muted'">
-              {{ aiStatus?.configured ? 'AI已连接' : '本地回退' }}
+              {{ aiStatus?.configured ? 'AI已连接' : 'ApiKey未配置' }}
             </span>
           </div>
         </div>
@@ -1911,7 +2235,7 @@ onBeforeUnmount(() => {
           <div class="assistant-toolbar-copy">切换工具会自动切换提示词与聊天线程。</div>
         </div>
 
-        <div ref="assistantScrollRef" class="assistant-chat-scroll">
+        <div ref="assistantScrollRef" class="assistant-chat-scroll" @scroll="handleAssistantScroll">
           <div v-for="message in currentThread" :key="message.id" class="chat-row" :class="message.role">
             <div class="chat-bubble" :class="[message.role, { hint: message.isHint, error: message.status === 'error' }]">
               <div class="chat-meta">
@@ -2056,6 +2380,10 @@ onBeforeUnmount(() => {
                     <div class="soft-panel">
                       <div class="soft-title">字典路径</div>
                       <div class="summary-copy mt-2">{{ getHashcatAiResult(message)!.wordlist_path || '未提供' }}</div>
+                    </div>
+                    <div v-if="getHashcatAiResult(message)!.secondary_wordlist_path" class="soft-panel">
+                      <div class="soft-title">第二字典路径</div>
+                      <div class="summary-copy mt-2">{{ getHashcatAiResult(message)!.secondary_wordlist_path }}</div>
                     </div>
                     <div class="soft-panel">
                       <div class="soft-title">掩码</div>

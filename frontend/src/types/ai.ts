@@ -14,15 +14,6 @@ export interface ToolAiRequest {
   context?: Record<string, unknown>
 }
 
-export interface ToolAiResponse {
-  tool_id: string
-  mode: AiMode
-  model: string | null
-  source: 'ai' | 'fallback'
-  reasoning: string
-  result: Record<string, unknown>
-}
-
 export interface ToolAiStreamReasoningEvent {
   type: 'reasoning'
   tool_id: string
@@ -64,6 +55,8 @@ export interface EncodingAssistResult {
   recommended_encoding: string
   candidates: EncodingCandidate[]
   suggested_recipe: string[]
+  cyberchef_recipe?: string | null
+  cyberchef_input?: string | null
   explanation: string
   warnings: string[]
 }

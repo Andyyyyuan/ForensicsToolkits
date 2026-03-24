@@ -2,8 +2,6 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.schemas.file import FileUploadResponse
 from app.schemas.log_parser import (
-    AIAnalysisRequest,
-    AIAnalysisResponse,
     LogParserStatusResponse,
     LogSearchRequest,
     LogSearchResponse,
@@ -84,28 +82,3 @@ async def search_log(file_id: str, payload: LogSearchRequest) -> LogSearchRespon
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"日志搜索失败：{exc}") from exc
-
-
-@router.post("/analyze/{file_id}", response_model=AIAnalysisResponse)
-async def analyze_log_with_ai(file_id: str, payload: AIAnalysisRequest) -> AIAnalysisResponse:
-    file_record = db_service.get_file(file_id)
-    if not file_record:
-        raise HTTPException(status_code=404, detail="文件不存在或尚未上传。")
-
-    try:
-        tool_config_service.ensure_enabled("log_parser")
-    except ToolDisabledError as exc:
-        raise HTTPException(status_code=403, detail=exc.message) from exc
-
-    parsed_data = db_service.get_parsed_result(file_id)
-    if parsed_data:
-        parsed_result = ParsedLogResponse(**parsed_data)
-    else:
-        parsed_result = await log_parser_service.parse_file(file_record)
-        db_service.save_parsed_result(file_id, parsed_result.model_dump())
-
-    analysis_source, analysis = await ai_analysis_service.analyze(
-        parsed_result=parsed_result,
-        question=payload.question.strip(),
-    )
-    return AIAnalysisResponse(file_id=file_id, analysis_source=analysis_source, analysis=analysis)

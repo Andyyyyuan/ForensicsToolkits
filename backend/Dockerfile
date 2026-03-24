@@ -10,8 +10,13 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY app ./app
-
-RUN mkdir -p /app/storage/data /app/storage/uploads /app/storage/logs /app/storage/reports
+RUN mkdir -p \
+    /app/storage/data \
+    /app/storage/uploads \
+    /app/storage/logs \
+    /app/storage/reports \
+    /opt/hashcat \
+    /opt/hashcat-wordlists
 
 EXPOSE 8000
 

@@ -64,14 +64,6 @@ class LogSearchResponse(BaseModel):
     matches: list[LogSearchMatch] = Field(default_factory=list)
 
 
-class AIAnalysisRequest(BaseModel):
-    question: str = Field(
-        default="请从电子取证和风险研判视角概述这份日志，并指出当前证据能支持与不能支持的结论。",
-        min_length=1,
-        max_length=2000,
-    )
-
-
 class FindingItem(BaseModel):
     title: str
     evidence: list[str] = Field(default_factory=list)
@@ -84,12 +76,6 @@ class AIAnalysisResult(BaseModel):
     findings: list[FindingItem] = Field(default_factory=list)
     timeline_summary: list[str] = Field(default_factory=list)
     recommendations: list[str] = Field(default_factory=list)
-
-
-class AIAnalysisResponse(BaseModel):
-    file_id: str
-    analysis_source: Literal["ai", "fallback"]
-    analysis: AIAnalysisResult
 
 
 class LogParserStatusResponse(BaseModel):
