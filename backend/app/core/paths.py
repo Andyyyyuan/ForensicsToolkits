@@ -3,6 +3,7 @@ import platform
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = BASE_DIR.parent
 
 
 def _resolve_path(env_name: str, default: Path) -> Path:
@@ -39,15 +40,16 @@ def get_db_path() -> Path:
 
 
 def _default_hashcat_bundle_dir() -> Path:
+    project_hashcat_dir = PROJECT_ROOT / "hashcat-7.1.2"
+    if project_hashcat_dir.exists():
+        return project_hashcat_dir
     if platform.system().lower().startswith("win"):
         return Path.home() / "hashcat"
     return Path("/opt/hashcat")
 
 
 def _default_hashcat_wordlists_dir() -> Path:
-    if platform.system().lower().startswith("win"):
-        return Path.home() / "hashcat-wordlists"
-    return Path("/opt/hashcat-wordlists")
+    return _default_hashcat_bundle_dir()
 
 
 def get_hashcat_bundle_dir() -> Path:

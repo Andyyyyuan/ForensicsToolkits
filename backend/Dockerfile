@@ -6,17 +6,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt ./
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ocl-icd-libopencl1 \
+        pocl-opencl-icd \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-COPY app ./app
+COPY backend/app ./app
+COPY hashcat-7.1.2 /opt/hashcat
 RUN mkdir -p \
     /app/storage/data \
     /app/storage/uploads \
     /app/storage/logs \
-    /app/storage/reports \
-    /opt/hashcat \
-    /opt/hashcat-wordlists
+    /app/storage/reports
 
 EXPOSE 8000
 

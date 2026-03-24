@@ -21,5 +21,5 @@ Thumbs.db
 .vscode/
 docker-data/
 backend/vendor/hashcat/
+/hashcat-7.1.2/
 deploy.sh
-.claude
