@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
-import { getAiStatus, streamToolAi } from './api/ai'
-import { getHashcatHashModes, getHashcatStatus, stopHashcatTask } from './api/hashcat'
-import { apiBaseUrl, parseLog, searchLog, uploadLogFile } from './api/logParser'
 import {
+  apiBaseUrl,
   exportSqliteTable,
+  getAiStatus,
+  getHashcatHashModes,
+  getHashcatStatus,
   inspectSqliteDatabase,
   listTools,
+  parseLog,
   previewSqliteTable,
-  runRegisteredTool,
-  runRegisteredToolWithoutFile,
+  runTool,
+  searchLog,
+  stopHashcatTask,
+  streamToolAi,
   uploadToolFile,
 } from './api/tools'
 import {
@@ -1030,7 +1034,7 @@ async function uploadLog(): Promise<void> {
   }
   logUploading.value = true
   try {
-    logUpload.value = await uploadLogFile(logSelectedFile.value)
+    logUpload.value = await uploadToolFile('log_parser', logSelectedFile.value)
     logParsed.value = null
     logSearchResult.value = null
     logMessage.value = '日志上传完成。'
@@ -1104,7 +1108,7 @@ async function uploadSharedToolFile(
     return
   }
   try {
-    uploadRef.value = await uploadToolFile(fileRef.value, toolId)
+    uploadRef.value = await uploadToolFile(toolId, fileRef.value)
     messageRef.value = '文件上传完成。'
   } catch (error) {
     messageRef.value = getErrorMessage(error, '文件上传失败。')
@@ -1301,7 +1305,10 @@ async function runHashTool(): Promise<void> {
   }
   hashRunning.value = true
   try {
-    hashResultRun.value = await runRegisteredTool('hash_tool', hashUpload.value.file_id, { algorithms: selectedHashAlgorithms.value })
+    hashResultRun.value = await runTool('hash_tool', {
+      fileId: hashUpload.value.file_id,
+      params: { algorithms: selectedHashAlgorithms.value },
+    })
     hashMessage.value = '哈希计算完成。'
   } catch (error) {
     hashMessage.value = getErrorMessage(error, '哈希计算失败。')
@@ -1317,7 +1324,7 @@ async function runSqliteExport(): Promise<void> {
   }
   sqliteRunning.value = true
   try {
-    sqliteResultRun.value = await runRegisteredTool('sqlite2csv', sqliteUpload.value.file_id)
+    sqliteResultRun.value = await runTool('sqlite2csv', { fileId: sqliteUpload.value.file_id })
     const zipUrl = (sqliteResultRun.value.result.zip_url as string | undefined) || ''
     const zipName = (sqliteResultRun.value.result.zip_name as string | undefined) || undefined
     if (zipUrl) {
@@ -1334,7 +1341,7 @@ async function runSqliteExport(): Promise<void> {
 async function runTimestampParser(): Promise<void> {
   timestampRunning.value = true
   try {
-    timestampResultRun.value = await runRegisteredToolWithoutFile('timestamp_parser', { ...timestampForm })
+    timestampResultRun.value = await runTool('timestamp_parser', { params: { ...timestampForm } })
     timestampMessage.value = '时间戳转换完成。'
   } catch (error) {
     timestampMessage.value = getErrorMessage(error, '时间戳转换失败。')
@@ -1350,18 +1357,21 @@ async function runHashcatTask(): Promise<void> {
   }
   hashcatRunning.value = true
   try {
-    await runRegisteredTool('hashcat_gui', hashcatUpload.value.file_id, {
-      hash_mode: Number(hashcatForm.hash_mode),
-      attack_mode: Number(hashcatForm.attack_mode),
-      wordlist_path: isHashcatPrimaryWordlistMode.value ? hashcatForm.wordlist_path || undefined : undefined,
-      wordlist_file_id: isHashcatPrimaryWordlistMode.value ? hashcatWordlistUpload.value?.file_id || undefined : undefined,
-      secondary_wordlist_path: isHashcatSecondaryWordlistMode.value ? hashcatForm.secondary_wordlist_path || undefined : undefined,
-      secondary_wordlist_file_id: isHashcatSecondaryWordlistMode.value
-        ? hashcatSecondaryWordlistUpload.value?.file_id || undefined
-        : undefined,
-      mask: isHashcatMaskMode.value ? hashcatForm.mask || undefined : undefined,
-      session_name: hashcatForm.session_name || undefined,
-      extra_args: parseExtraArgs(hashcatForm.extra_args_text),
+    await runTool('hashcat_gui', {
+      fileId: hashcatUpload.value.file_id,
+      params: {
+        hash_mode: Number(hashcatForm.hash_mode),
+        attack_mode: Number(hashcatForm.attack_mode),
+        wordlist_path: isHashcatPrimaryWordlistMode.value ? hashcatForm.wordlist_path || undefined : undefined,
+        wordlist_file_id: isHashcatPrimaryWordlistMode.value ? hashcatWordlistUpload.value?.file_id || undefined : undefined,
+        secondary_wordlist_path: isHashcatSecondaryWordlistMode.value ? hashcatForm.secondary_wordlist_path || undefined : undefined,
+        secondary_wordlist_file_id: isHashcatSecondaryWordlistMode.value
+          ? hashcatSecondaryWordlistUpload.value?.file_id || undefined
+          : undefined,
+        mask: isHashcatMaskMode.value ? hashcatForm.mask || undefined : undefined,
+        session_name: hashcatForm.session_name || undefined,
+        extra_args: parseExtraArgs(hashcatForm.extra_args_text),
+      },
     })
     await refreshHashcatStatus()
     hashcatMessage.value = 'Hashcat 任务已启动。'

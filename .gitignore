@@ -13,6 +13,7 @@ frontend/.vite/
 **/__pycache__/
 *.pyc
 .env
+release/.env
 backend/.env
 *.log
 .DS_Store
@@ -20,6 +21,7 @@ Thumbs.db
 .idea/
 .vscode/
 docker-data/
+release/data/
 backend/vendor/hashcat/
 /hashcat-7.1.2/
 deploy.sh

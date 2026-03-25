@@ -9,12 +9,15 @@ class ToolMetaResponse(BaseModel):
     description: str
     input_types: list[str] = Field(default_factory=list)
     requires_file: bool = True
+    supports_ai: bool = False
+    actions: list[str] = Field(default_factory=list)
     enabled: bool = True
     disabled_title: str | None = None
     disabled_message: str | None = None
 
 
-class ToolRunRequest(BaseModel):
+class ToolExecutionRequest(BaseModel):
+    file_id: str | None = None
     params: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -22,6 +25,13 @@ class ToolRunResponse(BaseModel):
     tool_id: str
     file_id: str | None = None
     result: dict[str, Any]
+
+
+class ToolActionResponse(BaseModel):
+    tool_id: str
+    action: str
+    file_id: str | None = None
+    result: Any
 
 
 class SqliteTableColumnResponse(BaseModel):
@@ -105,18 +115,6 @@ class ToolAIResponse(BaseModel):
     source: Literal["ai", "fallback"]
     reasoning: str = ""
     result: dict[str, Any]
-
-
-class HashcatTaskRequest(BaseModel):
-    hash_mode: int
-    attack_mode: Literal[0, 1, 3, 6, 7]
-    wordlist_path: str | None = None
-    wordlist_file_id: str | None = None
-    secondary_wordlist_path: str | None = None
-    secondary_wordlist_file_id: str | None = None
-    mask: str | None = None
-    extra_args: list[str] = Field(default_factory=list)
-    session_name: str | None = None
 
 
 class HashcatHashModeResponse(BaseModel):

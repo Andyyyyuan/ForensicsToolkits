@@ -5,6 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from app.core.paths import get_report_dir
+from app.services.sqlite_tool_service import sqlite_tool_service
 from app.tools.base import BaseTool
 from app.tools.registry import tool_registry
 
@@ -16,8 +17,7 @@ class SQLite2CSVTool(BaseTool):
     input_types = [".db", ".sqlite", ".sqlite3", ".db3"]
 
     async def run(self, file_path: str | Path, params: dict | None = None) -> dict:
-        path = Path(file_path)
-        self._validate_sqlite(path)
+        path = sqlite_tool_service.validate_database(file_path)
 
         export_id = uuid4().hex
         base_name = path.stem.replace(".", "_")
@@ -27,7 +27,7 @@ class SQLite2CSVTool(BaseTool):
 
         with sqlite3.connect(path) as connection:
             connection.row_factory = sqlite3.Row
-            tables = self._get_tables(connection)
+            tables = sqlite_tool_service.list_tables(connection)
             if not tables:
                 raise ValueError("数据库中没有可导出的数据表。")
 
@@ -40,7 +40,7 @@ class SQLite2CSVTool(BaseTool):
                         "row_count": row_count,
                         "columns": columns,
                         "csv_name": csv_path.name,
-                        "csv_url": self._to_storage_url(csv_path),
+                        "csv_url": sqlite_tool_service.to_storage_url(csv_path),
                     }
                 )
 
@@ -54,22 +54,8 @@ class SQLite2CSVTool(BaseTool):
             "table_count": len(exported_tables),
             "tables": exported_tables,
             "zip_name": zip_path.name,
-            "zip_url": self._to_storage_url(zip_path),
+            "zip_url": sqlite_tool_service.to_storage_url(zip_path),
         }
-
-    def _validate_sqlite(self, path: Path) -> None:
-        if not path.exists() or not path.is_file():
-            raise ValueError("数据库文件不存在。")
-        with path.open("rb") as handle:
-            header = handle.read(16)
-        if header != b"SQLite format 3\x00":
-            raise ValueError("上传文件不是有效的 SQLite 数据库。")
-
-    def _get_tables(self, connection: sqlite3.Connection) -> list[str]:
-        rows = connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
-        ).fetchall()
-        return [str(row[0]) for row in rows]
 
     def _export_table(
         self,
@@ -91,14 +77,6 @@ class SQLite2CSVTool(BaseTool):
                 row_count += 1
 
         return csv_path, row_count, columns
-
-    def _to_storage_url(self, path: Path) -> str:
-        report_root = get_report_dir()
-        if report_root not in path.parents and path != report_root:
-            raise ValueError("无法定位报告目录。")
-        relative = path.relative_to(report_root).as_posix()
-        return f"/storage/reports/{relative}"
-
 
 def register_sqlite2csv_tool() -> None:
     if not tool_registry.has_tool("sqlite2csv"):

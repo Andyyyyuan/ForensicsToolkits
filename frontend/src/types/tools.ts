@@ -4,6 +4,8 @@ export interface ToolMeta {
   description: string
   input_types: string[]
   requires_file: boolean
+  supports_ai: boolean
+  actions: string[]
   enabled: boolean
   disabled_title: string | null
   disabled_message: string | null
@@ -123,18 +125,6 @@ export interface ToolRunResponse {
 }
 
 export type HashcatAttackMode = 0 | 1 | 3 | 6 | 7
-
-export interface HashcatTaskRequest {
-  hash_mode: number
-  attack_mode: HashcatAttackMode
-  wordlist_path?: string
-  wordlist_file_id?: string
-  secondary_wordlist_path?: string
-  secondary_wordlist_file_id?: string
-  mask?: string
-  extra_args: string[]
-  session_name?: string
-}
 
 export interface HashcatHashMode {
   mode: number

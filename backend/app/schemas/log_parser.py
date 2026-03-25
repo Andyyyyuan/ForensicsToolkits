@@ -76,10 +76,3 @@ class AIAnalysisResult(BaseModel):
     findings: list[FindingItem] = Field(default_factory=list)
     timeline_summary: list[str] = Field(default_factory=list)
     recommendations: list[str] = Field(default_factory=list)
-
-
-class LogParserStatusResponse(BaseModel):
-    ai_configured: bool
-    ai_base_url: str | None = None
-    ai_chat_model: str | None = None
-    ai_reasoner_model: str | None = None
