@@ -3,6 +3,7 @@ import binascii
 import html
 import json
 import os
+import quopri
 import re
 from urllib.parse import unquote
 from pathlib import Path
@@ -39,25 +40,91 @@ SUPPORTED_TIMESTAMP_TYPES = [
     "apple_absolute_time",
 ]
 SUPPORTED_ENCODING_NAMES = [
-    "UTF-8",
-    "UTF-16LE",
-    "UTF-16BE",
-    "GBK",
-    "GB18030",
+    "Base45",
+    "Base58",
+    "Base62",
     "Base64",
+    "Base85",
     "Base32",
     "Hex",
+    "Binary",
+    "Octal",
+    "Quoted Printable",
+    "Morse Code",
+    "ROT13",
     "URL",
     "Unicode Escape",
     "HTML Entity",
     "JSON Escape",
+    "Unknown",
 ]
+BASE45_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
+BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+MORSE_CODE_TABLE = {
+    ".-": "A",
+    "-...": "B",
+    "-.-.": "C",
+    "-..": "D",
+    ".": "E",
+    "..-.": "F",
+    "--.": "G",
+    "....": "H",
+    "..": "I",
+    ".---": "J",
+    "-.-": "K",
+    ".-..": "L",
+    "--": "M",
+    "-.": "N",
+    "---": "O",
+    ".--.": "P",
+    "--.-": "Q",
+    ".-.": "R",
+    "...": "S",
+    "-": "T",
+    "..-": "U",
+    "...-": "V",
+    ".--": "W",
+    "-..-": "X",
+    "-.--": "Y",
+    "--..": "Z",
+    "-----": "0",
+    ".----": "1",
+    "..---": "2",
+    "...--": "3",
+    "....-": "4",
+    ".....": "5",
+    "-....": "6",
+    "--...": "7",
+    "---..": "8",
+    "----.": "9",
+    ".-.-.-": ".",
+    "--..--": ",",
+    "..--..": "?",
+    "-.-.--": "!",
+    "-..-.": "/",
+    ".--.-.": "@",
+    "-...-": "=",
+    "---...": ":",
+    "-....-": "-",
+    "-.--.": "(",
+    "-.--.-": ")",
+    ".----.": "'",
+    ".-..-.": '"',
+    ".-.-.": "+",
+}
 SYSTEM_RESPONSE_STYLE = (
     "必须用中文回答。"
     "不要使用生硬的通用称呼。"
     "如需称呼，请使用“同学你好”。"
     "结论要和证据对应，证据不足时明确说明不足点。"
     "表达要简洁、专业、克制、可执行，不要写空泛套话。"
+)
+TOOL_KNOWLEDGE_STYLE = (
+    "如果用户的问题明显是在询问本工具相关的概念、原理、用途、区别、排错思路或最佳实践，"
+    "即使当前缺少具体文件、哈希、表结构、日志片段或样本，也要先直接回答该知识问题。"
+    "此时要明确哪些内容属于通用知识，哪些内容尚未结合当前案件样本验证。"
+    "不要因为缺少上下文，就机械地只回复“未提供文件/哈希/数据库/样本”。"
 )
 
 
@@ -266,7 +333,7 @@ class AIAnalysisService:
             normalizer=self._normalize_timestamp_assist_payload,
             fallback_factory=lambda error: self._fallback_stream_payload(self._assist_timestamp_fallback(raw_input), error),
             system_prompt=self._timestamp_assist_prompt(),
-            user_payload={"user_input": raw_input, "output_requirement": "输出必须是 JSON，explanation 和 warnings 必须使用中文。"},
+            user_payload=self._build_timestamp_ai_payload(raw_input),
         ):
             yield event
 
@@ -283,7 +350,7 @@ class AIAnalysisService:
         async for event in self._stream_tool_result(
             tool_id="hashcat_gui",
             mode=mode,
-            normalizer=self._normalize_hashcat_assist_payload,
+            normalizer=lambda payload: self._normalize_hashcat_assist_payload(payload, raw_input=raw_input),
             fallback_factory=lambda error: self._fallback_stream_payload(
                 self._assist_hashcat_fallback(raw_input, context=context, file_context=hash_file_context),
                 error,
@@ -314,17 +381,13 @@ class AIAnalysisService:
         async for event in self._stream_tool_result(
             tool_id="hash_tool",
             mode=mode,
-            normalizer=self._normalize_hash_result_assist_payload,
+            normalizer=lambda payload: self._normalize_hash_result_assist_payload(payload, raw_input=raw_input),
             fallback_factory=lambda error: self._fallback_stream_payload(
                 self._assist_hash_result_fallback(raw_input, normalized_context),
                 error,
             ),
             system_prompt=self._hash_result_assist_prompt(),
-            user_payload={
-                "user_input": raw_input,
-                "hash_context": normalized_context,
-                "output_requirement": "输出必须是 JSON，所有说明必须使用中文。",
-            },
+            user_payload=self._build_hash_result_ai_payload(raw_input, normalized_context),
         ):
             yield event
 
@@ -344,11 +407,7 @@ class AIAnalysisService:
                 error,
             ),
             system_prompt=self._sqlite_assist_prompt(),
-            user_payload={
-                "user_input": raw_input,
-                "sqlite_context": normalized_context,
-                "output_requirement": "输出必须是 JSON，所有说明必须使用中文。",
-            },
+            user_payload=self._build_sqlite_ai_payload(raw_input, normalized_context),
         ):
             yield event
 
@@ -356,6 +415,9 @@ class AIAnalysisService:
         return (
             "你是一名电子取证日志研判助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须把 question 当作概念提问来回答，"
+            "先解释概念，再引用当前日志统计或片段作为补充背景，不要把概念问题误写成案件定性结论。"
             "同学你好，请只依据提供的结构化基础解析结果、关键片段和提问进行判断。"
             "禁止编造不存在的事实；证据不足时必须明确说明。"
             "严格输出 JSON，字段必须包含：summary、risk_level、findings、timeline_summary、recommendations。"
@@ -366,6 +428,9 @@ class AIAnalysisService:
         return (
             "你是一名电子取证时间戳识别助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须把 user_input 当概念问题处理，"
+            "不要把整句问题当待解析时间戳样本；此时 explanation 要直接回答问题，timestamp 可留空，timestamp_type 选择最相关类型。"
             "同学你好，请从输入的杂乱文本中提取最可能的时间戳值和类型，并给出建议。"
             "只输出 JSON，字段必须包含：timestamp、timestamp_type、origin_timezone、target_timezone、explanation、confidence、warnings。"
             f"timestamp_type 只能从以下值中选择：{', '.join(SUPPORTED_TIMESTAMP_TYPES)}。"
@@ -378,6 +443,9 @@ class AIAnalysisService:
         return (
             "你是一名 Hashcat GUI 配置助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须先回答 Hashcat 相关概念或最佳实践，"
+            "不要机械地因为缺少 hash 样本就只回复缺少上下文；配置字段可给出最相关的通用示例，并在 warnings 说明未结合当前样本验证。"
             "同学你好，请结合输入文本、当前表单、运行时默认字典信息以及已上传的 hash 文件样本，识别最可能的 Hash 类型、攻击模式和可直接回填的参数。"
             "只输出 JSON，字段必须包含：hash_mode、attack_mode、wordlist_path、secondary_wordlist_path、mask、session_name、extra_args、explanation、confidence、warnings。"
             "attack_mode 只能是 0、1、3、6、7。"
@@ -395,14 +463,19 @@ class AIAnalysisService:
         return (
             "你是一名电子取证编码识别助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
-            "同学你好，请先判断输入更像哪种编码、转义或数据表示形式，再给出 CyberChef 可尝试的配方。"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须把 user_input 当概念提问，"
+            "不要因为整句问题本身是普通可读文本，就机械地把 recommended_encoding 判成 UTF-8；应优先返回用户正在询问的编码主题。"
+            "同学你好，请优先按 CTF 和取证竞赛里常见的编码、转义或数据表示形式做判断，再给出 CyberChef 可尝试的配方。"
             "只输出 JSON，字段必须包含：recommended_encoding、candidates、suggested_recipe、cyberchef_recipe、cyberchef_input、explanation、warnings。"
             "candidates 必须是数组，每项字段包含：name、confidence、score、reason。"
             f"name 应优先从以下候选中选择：{', '.join(SUPPORTED_ENCODING_NAMES)}。"
             "score 为 0 到 100 的整数。"
+            "优先考虑 Base45、Base58、Base62、Base64、Base85、Base32、Hex、Binary、Octal、Quoted Printable、Morse Code、ROT13、URL 以及常见转义序列。"
+            "除非用户明确在排查乱码或字符集问题，不要把 UTF-8、GBK、GB18030、UTF-16 这类字符集当成主候选。"
             "必须区分 Base32 与 Base64：Base32 常见字符集主要是 A-Z、2-7 和 =，通常不会出现 +、/；Base64 常见字符集是 A-Z、a-z、0-9、+、/ 和 =。"
-            "如果一层解码后仍明显像另一层编码，suggested_recipe 必须按解码顺序输出数组，例如 ['From Base64', 'From Base64'] 或 ['From Base32', 'From Base64']。"
-            "只有证据充分时才给出多层判断；若 Base32 与 Base64 存在歧义，必须在 warnings 中说明。"
+            "如果一层解码后仍明显像另一层编码，suggested_recipe 必须按解码顺序输出数组，并优先尝试 2 到 3 层嵌套，例如 ['From Base64', 'From Base64']、['From Base58', 'From Hex'] 或 ['From Base64', 'From Base64', 'From Hex']。"
+            "只有证据充分时才给出多层判断；若 Base32 与 Base64 或 Base58 与 Base62 存在歧义，必须在 warnings 中说明。"
             "cyberchef_recipe 必须是可直接放入 CyberChef URL recipe 参数的配方字符串。"
             "cyberchef_input 必须保持原始输入，不要自行做 Base64 编码。"
             "不要虚构已经成功解码出的最终明文，只能给出识别判断、分层依据和建议配方。"
@@ -412,6 +485,9 @@ class AIAnalysisService:
         return (
             "你是一名电子取证哈希分析助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须优先回答哈希概念、用途、区别或最佳实践，"
+            "即使当前没有 hash_result 上下文，也不要只机械要求先上传文件。"
             "同学你好，请结合提问、文件哈希结果和可用元数据，给出可直接执行的取证比对建议。"
             "不要编造未提供的文件来源、恶意结论或情报检索命中结果。"
             "只输出 JSON，字段必须包含：summary、primary_hash、findings、recommendations、warnings、confidence。"
@@ -422,6 +498,9 @@ class AIAnalysisService:
         return (
             "你是一名电子取证 SQLite 分析助手。"
             f"{SYSTEM_RESPONSE_STYLE}"
+            f"{TOOL_KNOWLEDGE_STYLE}"
+            "输入里会额外提供 query_intent。若 query_intent.type=knowledge_question，必须先回答 SQLite 相关概念、结构理解或取证思路，"
+            "不要机械地因为缺少数据库结构就只回复先上传数据库。"
             "同学你好，请结合提问、当前数据库表结构、选中表和预览数据，指出优先检查的表、字段和导出方向。"
             "禁止编造数据库中不存在的字段、关系或行内容，只能依据提供的上下文推断。"
             "只输出 JSON，字段必须包含：summary、highlighted_tables、current_table_name、focus_fields、schema_notes、recommendations、warnings。"
@@ -430,16 +509,33 @@ class AIAnalysisService:
         )
 
     def _build_encoding_ai_payload(self, raw_input: str) -> dict[str, Any]:
-        analysis = self._analyze_encoding_input(raw_input)
-        return {
+        knowledge_question = self._is_knowledge_question(raw_input)
+        payload = {
             "user_input": raw_input,
-            "encoding_context": analysis["evidence"],
-            "suggested_recipe_hint": analysis["suggested_recipe"],
+            "query_intent": self._build_query_intent(
+                "encoding_converter",
+                raw_input,
+                has_context=not knowledge_question,
+            ),
             "output_requirement": (
                 "输出必须是 JSON，所有说明必须使用中文。"
-                "如果判断为多层编码，suggested_recipe 必须按解码顺序给出多个步骤。"
+                "识别时优先覆盖 CTF 和取证竞赛常见编码。"
+                "如果判断为多层编码，suggested_recipe 必须按解码顺序给出 2 到 3 个步骤。"
+                "若 query_intent.type=knowledge_question，必须把问题当概念提问，不要把整句问题按普通文本样本识别为 UTF-8。"
+                "若没有命中明显字符集乱码特征，不要默认推荐 UTF-8、GBK、GB18030 或 UTF-16。"
             ),
         }
+        if knowledge_question:
+            payload["knowledge_context"] = {
+                "mentioned_topics": self._extract_encoding_topics(raw_input) or [self._detect_encoding_topic(raw_input)],
+                "instruction": "当前输入是提问，不是待识别样本。请围绕被提到的编码概念作答。",
+            }
+            return payload
+
+        analysis = self._analyze_encoding_input(raw_input)
+        payload["encoding_context"] = analysis["evidence"]
+        payload["suggested_recipe_hint"] = analysis["suggested_recipe"]
+        return payload
 
     async def _analyze_with_remote_model(
         self,
@@ -458,7 +554,7 @@ class AIAnalysisService:
         content, reasoning = await self._request_json_completion(
             model=self.get_model_name(mode),
             system_prompt=self._timestamp_assist_prompt(),
-            user_payload={"user_input": raw_input, "output_requirement": "输出必须是 JSON，explanation 和 warnings 必须使用中文。"},
+            user_payload=self._build_timestamp_ai_payload(raw_input),
         )
         return self._normalize_timestamp_assist_payload(self._parse_json_content(content)), reasoning
 
@@ -474,7 +570,7 @@ class AIAnalysisService:
             system_prompt=self._hashcat_assist_prompt(),
             user_payload=hashcat_payload or self._build_hashcat_ai_payload(raw_input),
         )
-        return self._normalize_hashcat_assist_payload(self._parse_json_content(content)), reasoning
+        return self._normalize_hashcat_assist_payload(self._parse_json_content(content), raw_input=raw_input), reasoning
 
     async def _assist_encoding_with_model(self, raw_input: str, mode: str) -> tuple[dict[str, Any], str]:
         content, reasoning = await self._request_json_completion(
@@ -493,13 +589,9 @@ class AIAnalysisService:
         content, reasoning = await self._request_json_completion(
             model=self.get_model_name(mode),
             system_prompt=self._hash_result_assist_prompt(),
-            user_payload={
-                "user_input": raw_input,
-                "hash_context": context,
-                "output_requirement": "输出必须是 JSON，所有说明必须使用中文。",
-            },
+            user_payload=self._build_hash_result_ai_payload(raw_input, context),
         )
-        return self._normalize_hash_result_assist_payload(self._parse_json_content(content)), reasoning
+        return self._normalize_hash_result_assist_payload(self._parse_json_content(content), raw_input=raw_input), reasoning
 
     async def _assist_sqlite_result_with_model(
         self,
@@ -510,11 +602,7 @@ class AIAnalysisService:
         content, reasoning = await self._request_json_completion(
             model=self.get_model_name(mode),
             system_prompt=self._sqlite_assist_prompt(),
-            user_payload={
-                "user_input": raw_input,
-                "sqlite_context": context,
-                "output_requirement": "输出必须是 JSON，所有说明必须使用中文。",
-            },
+            user_payload=self._build_sqlite_ai_payload(raw_input, context),
         )
         return self._normalize_sqlite_assist_payload(self._parse_json_content(content)), reasoning
 
@@ -774,12 +862,67 @@ class AIAnalysisService:
     def _build_evidence_bundle(self, parsed_result: ParsedLogResponse, question: str) -> dict[str, Any]:
         return {
             "question": question,
+            "query_intent": self._build_query_intent(
+                "log_parser",
+                question,
+                has_context=parsed_result.total_lines > 0,
+            ),
+            "context_summary": {
+                "total_lines": parsed_result.total_lines,
+                "error_count": parsed_result.level_counts.error,
+                "warning_count": parsed_result.level_counts.warning,
+                "has_timestamp": parsed_result.has_timestamp,
+            },
             "parsed_result": parsed_result.model_dump(),
             "evidence_constraints": [
                 "仅依据输入证据做结论",
                 "证据不足时明确写出不足之处",
                 "所有 findings 都应包含 evidence",
+                "若 query_intent.type=knowledge_question，先直接回答概念，再引用当前日志作为补充背景。",
             ],
+        }
+
+    def _build_query_intent(self, tool_id: str, text: str, *, has_context: bool) -> dict[str, Any]:
+        detector_map: dict[str, Callable[[str], str]] = {
+            "log_parser": self._detect_log_topic,
+            "timestamp_parser": self._detect_timestamp_topic,
+            "hashcat_gui": self._detect_hashcat_topic,
+            "encoding_converter": self._detect_encoding_topic,
+            "hash_tool": self._detect_hash_topic,
+            "sqlite2csv": self._detect_sqlite_topic,
+        }
+        detector = detector_map.get(tool_id)
+        knowledge_question = self._is_knowledge_question(text)
+        topic = detector(text) if detector else "generic"
+        return {
+            "type": "knowledge_question" if knowledge_question else "analysis_request",
+            "topic": topic,
+            "has_context": has_context,
+            "treat_input_as": "question" if knowledge_question else "task_request",
+            "instruction": (
+                "先回答用户正在问的概念、用途、区别或最佳实践，再明确哪些内容尚未结合当前样本验证。"
+                if knowledge_question
+                else "结合当前上下文输出结构化分析或配置结果。"
+            ),
+        }
+
+    def _build_timestamp_ai_payload(self, raw_input: str) -> dict[str, Any]:
+        number_candidates = re.findall(r"[-+]?\d+(?:\.\d+)?", raw_input)
+        return {
+            "user_input": raw_input,
+            "query_intent": self._build_query_intent(
+                "timestamp_parser",
+                raw_input,
+                has_context=bool(number_candidates),
+            ),
+            "timestamp_context": {
+                "detected_numbers": number_candidates[:3],
+                "topic_hint": self._detect_timestamp_topic(raw_input),
+            },
+            "output_requirement": (
+                "输出必须是 JSON，explanation 和 warnings 必须使用中文。"
+                "若 query_intent.type=knowledge_question 且没有明确时间戳数值，timestamp 可留空，重点在 explanation 中直接回答概念。"
+            ),
         }
 
     def _build_hashcat_ai_payload(
@@ -793,17 +936,38 @@ class AIAnalysisService:
         runtime_context = dict(normalized_context.get("runtime") or {})
         hash_file_context = self._read_hashcat_file_context(file_id)
         default_wordlist_name, default_wordlist_path = self._resolve_hashcat_default_wordlist(normalized_context)
+        current_form = normalized_context.get("current_form") if isinstance(normalized_context, dict) else {}
+        if not isinstance(current_form, dict):
+            current_form = {}
 
         runtime_context.setdefault("default_wordlist_name", default_wordlist_name)
         if default_wordlist_path:
             runtime_context.setdefault("default_wordlist_path", default_wordlist_path)
 
+        has_form_context = any(
+            self._optional_text(current_form.get(key))
+            for key in ("wordlist_path", "secondary_wordlist_path", "mask", "session_name")
+        ) or any(
+            isinstance(current_form.get(key), int)
+            for key in ("hash_mode", "attack_mode")
+        )
+        has_file_context = bool(hash_file_context and (hash_file_context.get("sample_lines") or hash_file_context.get("sample_hashes")))
+
         return {
             "user_input": raw_input,
+            "query_intent": self._build_query_intent(
+                "hashcat_gui",
+                raw_input,
+                has_context=has_form_context or has_file_context,
+            ),
             "hashcat_context": {
                 **normalized_context,
                 "runtime": runtime_context,
                 "hash_file": hash_file_context,
+            },
+            "knowledge_context": {
+                "topic_hint": self._detect_hashcat_topic(raw_input),
+                "default_wordlist_name": default_wordlist_name,
             },
             "output_requirement": (
                 "输出必须是 JSON，explanation 和 warnings 必须使用中文。"
@@ -812,6 +976,53 @@ class AIAnalysisService:
                 "attack_mode=3 时只保留 mask。"
                 "attack_mode=6 为字典加后缀掩码。"
                 "attack_mode=7 为前缀掩码加字典。"
+                "若 query_intent.type=knowledge_question，必须先直接回答概念问题，不要机械要求补样本。"
+            ),
+        }
+
+    def _build_hash_result_ai_payload(self, raw_input: str, context: dict[str, Any]) -> dict[str, Any]:
+        hash_result = context.get("hash_result") if isinstance(context, dict) else None
+        algorithms = hash_result.get("algorithms") if isinstance(hash_result, dict) else []
+        file_name = str(hash_result.get("file_name") or "") if isinstance(hash_result, dict) else ""
+        return {
+            "user_input": raw_input,
+            "query_intent": self._build_query_intent(
+                "hash_tool",
+                raw_input,
+                has_context=isinstance(hash_result, dict),
+            ),
+            "hash_context": context,
+            "context_summary": {
+                "has_hash_result": isinstance(hash_result, dict),
+                "file_name": file_name or None,
+                "algorithms": algorithms if isinstance(algorithms, list) else [],
+            },
+            "output_requirement": (
+                "输出必须是 JSON，所有说明必须使用中文。"
+                "若 query_intent.type=knowledge_question，先直接回答概念、用途或区别，再说明当前上下文是否已验证。"
+            ),
+        }
+
+    def _build_sqlite_ai_payload(self, raw_input: str, context: dict[str, Any]) -> dict[str, Any]:
+        browser = context.get("browser") if isinstance(context, dict) else None
+        tables = browser.get("tables") if isinstance(browser, dict) else []
+        database_name = str(browser.get("database_name") or "") if isinstance(browser, dict) else ""
+        return {
+            "user_input": raw_input,
+            "query_intent": self._build_query_intent(
+                "sqlite2csv",
+                raw_input,
+                has_context=isinstance(browser, dict),
+            ),
+            "sqlite_context": context,
+            "context_summary": {
+                "has_browser_context": isinstance(browser, dict),
+                "database_name": database_name or None,
+                "table_count": len(tables) if isinstance(tables, list) else 0,
+            },
+            "output_requirement": (
+                "输出必须是 JSON，所有说明必须使用中文。"
+                "若 query_intent.type=knowledge_question，先直接回答 SQLite 结构或取证概念，再补充当前数据库上下文。"
             ),
         }
 
@@ -1021,7 +1232,7 @@ class AIAnalysisService:
             "warnings": self._coerce_text_list(payload.get("warnings")),
         }
 
-    def _normalize_hashcat_assist_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def _normalize_hashcat_assist_payload(self, payload: dict[str, Any], raw_input: str | None = None) -> dict[str, Any]:
         attack_mode = payload.get("attack_mode", 0)
         try:
             attack_mode_value = int(attack_mode)
@@ -1029,6 +1240,22 @@ class AIAnalysisService:
             attack_mode_value = 0
         if attack_mode_value not in {0, 1, 3, 6, 7}:
             attack_mode_value = 0
+
+        question_text = raw_input or ""
+        if self._is_knowledge_question(question_text):
+            topic = self._detect_hashcat_topic(question_text)
+            if topic == "attack_mode_1":
+                attack_mode_value = 1
+            elif topic == "mask_mode":
+                attack_mode_value = 3
+
+            lowered_question = question_text.lower()
+            if ("前缀" in question_text or "prefix" in lowered_question) and ("mask" in lowered_question or "掩码" in question_text):
+                attack_mode_value = 7
+            elif any(keyword in lowered_question for keyword in ("后缀", "suffix", "末尾", "尾部")) and (
+                "mask" in lowered_question or "掩码" in question_text
+            ):
+                attack_mode_value = 6
 
         extra_args = payload.get("extra_args")
         if isinstance(extra_args, str):
@@ -1086,18 +1313,51 @@ class AIAnalysisService:
         }
 
     def _normalize_encoding_assist_payload(self, payload: dict[str, Any], raw_input: str | None = None) -> dict[str, Any]:
-        local_analysis = self._analyze_encoding_input(raw_input or self._optional_text(payload.get("cyberchef_input") or payload.get("input")) or "")
+        source_input = raw_input or self._optional_text(payload.get("cyberchef_input") or payload.get("input")) or ""
+        local_analysis = self._analyze_encoding_input(source_input)
+        knowledge_fallback = self._build_encoding_knowledge_fallback(raw_input) if raw_input and self._is_knowledge_question(raw_input) else None
+        allowed_encodings = set(SUPPORTED_ENCODING_NAMES) | {"UTF-8", "GBK", "GB18030", "UTF-16", "UTF-16LE", "UTF-16BE"}
+        local_primary = local_analysis["candidates"][0] if local_analysis.get("candidates") else {"name": local_analysis["recommended_encoding"], "score": 0}
+        local_primary_name = str(local_primary.get("name") or local_analysis["recommended_encoding"])
+        try:
+            local_primary_score = int(local_primary.get("score") or 0)
+        except (TypeError, ValueError):
+            local_primary_score = 0
+
         recommended_encoding = (
             str(payload.get("recommended_encoding") or payload.get("encoding") or local_analysis["recommended_encoding"]).strip()
             or local_analysis["recommended_encoding"]
         )
+        model_recommended_encoding = recommended_encoding
+        if recommended_encoding not in allowed_encodings:
+            recommended_encoding = knowledge_fallback["recommended_encoding"] if knowledge_fallback else local_analysis["recommended_encoding"]
+        elif knowledge_fallback and knowledge_fallback["recommended_encoding"] != "Unknown":
+            recommended_encoding = knowledge_fallback["recommended_encoding"]
+        elif local_primary_name != "Unknown" and local_primary_score >= 75 and recommended_encoding != local_primary_name:
+            recommended_encoding = local_primary_name
+
         recipe_field = payload.get("recipe")
         suggested_recipe_source = payload.get("suggested_recipe")
         if suggested_recipe_source is None and not self._looks_like_cyberchef_recipe(recipe_field):
             suggested_recipe_source = recipe_field
         suggested_recipe = self._coerce_recipe_steps(suggested_recipe_source)
+        recipe_overridden_by_local = False
+
+        local_recipe = list(local_analysis["suggested_recipe"])
+        if knowledge_fallback:
+            knowledge_recipe = list(knowledge_fallback.get("suggested_recipe") or [])
+            if not suggested_recipe or suggested_recipe == ["Decode text"] or all(step.lower() == "decode text" for step in suggested_recipe):
+                suggested_recipe = knowledge_recipe
+        if recommended_encoding == local_primary_name and local_primary_score >= 75:
+            if not suggested_recipe or len(local_recipe) > len(suggested_recipe):
+                suggested_recipe = local_recipe
+                recipe_overridden_by_local = True
+            elif local_recipe and suggested_recipe and suggested_recipe[0].strip().lower() != local_recipe[0].strip().lower():
+                suggested_recipe = local_recipe
+                recipe_overridden_by_local = True
         if not suggested_recipe:
             suggested_recipe = list(local_analysis["suggested_recipe"])
+
         candidates_raw = payload.get("candidates") or []
         if not isinstance(candidates_raw, list):
             candidates_raw = [candidates_raw]
@@ -1134,6 +1394,10 @@ class AIAnalysisService:
 
         if not candidates:
             candidates = list(local_analysis["candidates"])
+        if knowledge_fallback and recommended_encoding == knowledge_fallback["recommended_encoding"]:
+            candidates = list(knowledge_fallback["candidates"]) + candidates
+        elif recommended_encoding == local_primary_name and local_primary_score >= 75:
+            candidates = list(local_analysis["candidates"]) + candidates
         candidates = self._dedupe_encoding_candidates(candidates)
         if not candidates:
             candidates = list(local_analysis["candidates"])
@@ -1152,13 +1416,22 @@ class AIAnalysisService:
         if not cyberchef_input:
             cyberchef_input = local_analysis["cyberchef_input"]
 
+        explanation = str(payload.get("explanation") or local_analysis["explanation"] or "已根据当前输入给出最可能的编码判断和 CyberChef 建议。")
+        if knowledge_fallback:
+            if len(explanation.strip()) < 30 or not re.search(r"(是一种|用于|字符集|表示方式|常见|本质上)", explanation):
+                explanation = str(knowledge_fallback["explanation"])
+        elif recipe_overridden_by_local:
+            explanation = str(local_analysis["explanation"])
+        elif recommended_encoding == local_primary_name and local_primary_score >= 75 and model_recommended_encoding != recommended_encoding:
+            explanation = str(local_analysis["explanation"])
+
         return {
             "recommended_encoding": recommended_encoding,
             "candidates": candidates,
             "suggested_recipe": suggested_recipe,
             "cyberchef_recipe": cyberchef_recipe,
             "cyberchef_input": cyberchef_input,
-            "explanation": str(payload.get("explanation") or local_analysis["explanation"] or "已根据当前输入给出最可能的编码判断和 CyberChef 建议。"),
+            "explanation": explanation,
             "warnings": self._merge_text_lists(self._coerce_text_list(payload.get("warnings")), local_analysis["warnings"]),
         }
 
@@ -1189,7 +1462,7 @@ class AIAnalysisService:
                     step = fragment.strip()
                     if step:
                         steps.append(step)
-        return list(dict.fromkeys(steps))
+        return steps
 
     def _build_cyberchef_recipe_from_suggestions(
         self,
@@ -1203,7 +1476,7 @@ class AIAnalysisService:
                 recipe_parts.append(recipe_part)
 
         if recipe_parts:
-            return "".join(dict.fromkeys(recipe_parts))
+            return "".join(recipe_parts)
 
         return self._encoding_to_cyberchef_decode_recipe(recommended_encoding)
 
@@ -1219,24 +1492,47 @@ class AIAnalysisService:
             return self._encoding_to_cyberchef_decode_recipe(recommended_encoding)
 
         suggested_map = {
+            "base45": f"From_Base45('{BASE45_ALPHABET}',true)",
+            "from base45": f"From_Base45('{BASE45_ALPHABET}',true)",
+            "base58": f"From_Base58('{BASE58_ALPHABET}',true)",
+            "from base58": f"From_Base58('{BASE58_ALPHABET}',true)",
+            "base62": f"From_Base62('{BASE62_ALPHABET}')",
+            "from base62": f"From_Base62('{BASE62_ALPHABET}')",
             "hex": "From_Hex('Auto')",
             "from hex": "From_Hex('Auto')",
             "base64": "From_Base64('A-Za-z0-9+/=',true,false)",
             "from base64": "From_Base64('A-Za-z0-9+/=',true,false)",
+            "base85": "From_Base85('!-u',true,'z')",
+            "from base85": "From_Base85('!-u',true,'z')",
             "base32": "From_Base32('A-Z2-7=',false)",
             "from base32": "From_Base32('A-Z2-7=',false)",
+            "binary": "From_Binary('Space',8)",
+            "from binary": "From_Binary('Space',8)",
+            "octal": "From_Octal('Space')",
+            "from octal": "From_Octal('Space')",
+            "quoted printable": "From_Quoted_Printable()",
+            "from quoted printable": "From_Quoted_Printable()",
+            "qp": "From_Quoted_Printable()",
+            "morse": "From_Morse_Code('Space','Forward slash')",
+            "morse code": "From_Morse_Code('Space','Forward slash')",
+            "moss": "From_Morse_Code('Space','Forward slash')",
+            "rot13": "ROT13(true,true,false,13)",
             "url": "URL_Decode()",
             "url decode": "URL_Decode()",
             "unicode escape": "Unescape_Unicode_Characters()",
             "unescape unicode characters": "Unescape_Unicode_Characters()",
             "html entity": "From_HTML_Entity()",
             "from html entity": "From_HTML_Entity()",
+            "json escape": "Unescape_Unicode_Characters()",
         }
         return suggested_map.get(normalized)
 
     def _encoding_to_cyberchef_decode_recipe(self, recommended_encoding: str) -> str | None:
         normalized = recommended_encoding.strip().lower()
         encoding_map = {
+            "base45": f"From_Base45('{BASE45_ALPHABET}',true)",
+            "base58": f"From_Base58('{BASE58_ALPHABET}',true)",
+            "base62": f"From_Base62('{BASE62_ALPHABET}')",
             "utf-8": "Decode_text('UTF-8 (65001)')",
             "utf8": "Decode_text('UTF-8 (65001)')",
             "gbk": "Decode_text('GBK (936)')",
@@ -1244,13 +1540,51 @@ class AIAnalysisService:
             "utf-16": "Decode_text('UTF-16LE (1200)')",
             "utf-16le": "Decode_text('UTF-16LE (1200)')",
             "utf-16be": "Decode_text('UTF-16BE (1201)')",
+            "base64": "From_Base64('A-Za-z0-9+/=',true,false)",
+            "base85": "From_Base85('!-u',true,'z')",
+            "base32": "From_Base32('A-Z2-7=',false)",
+            "hex": "From_Hex('Auto')",
+            "binary": "From_Binary('Space',8)",
+            "octal": "From_Octal('Space')",
+            "quoted printable": "From_Quoted_Printable()",
+            "morse code": "From_Morse_Code('Space','Forward slash')",
+            "rot13": "ROT13(true,true,false,13)",
+            "url": "URL_Decode()",
+            "unicode escape": "Unescape_Unicode_Characters()",
+            "html entity": "From_HTML_Entity()",
+            "json escape": "Unescape_Unicode_Characters()",
         }
         return encoding_map.get(normalized)
 
     def _analyze_encoding_input(self, raw_input: str) -> dict[str, Any]:
         text = raw_input.strip()
+        if not text:
+            return {
+                "recommended_encoding": "Unknown",
+                "candidates": [
+                    {
+                        "name": "Unknown",
+                        "score": 20,
+                        "confidence": "low",
+                        "reason": "输入为空，无法判断具体编码类型。",
+                    }
+                ],
+                "suggested_recipe": [],
+                "cyberchef_recipe": None,
+                "cyberchef_input": "",
+                "explanation": "未收到待分析样本，因此无法生成编码识别结果。",
+                "warnings": ["输入为空，请提供待识别样本。"],
+                "evidence": {
+                    "trimmed_length": 0,
+                    "compact_length": 0,
+                    "contains_whitespace": False,
+                    "probe_summary": {},
+                    "decoded_layers": [],
+                    "candidate_summary": [],
+                },
+            }
+
         compact = re.sub(r"\s+", "", text)
-        lowered = text.lower()
         warnings: list[str] = []
         candidates: list[dict[str, Any]] = []
 
@@ -1264,83 +1598,96 @@ class AIAnalysisService:
                 }
             )
 
-        base64_probe = self._probe_base64_text(text)
-        if base64_probe["score"] > 0:
-            add_candidate("Base64", base64_probe["score"], base64_probe["reason"])
+        probe_map = {
+            "Base45": self._probe_base45_text(text),
+            "Base58": self._probe_base58_text(text),
+            "Base62": self._probe_base62_text(text),
+            "Base64": self._probe_base64_text(text),
+            "Base85": self._probe_base85_text(text),
+            "Base32": self._probe_base32_text(text),
+            "Hex": self._probe_hex_text(text),
+            "Binary": self._probe_binary_text(text),
+            "Octal": self._probe_octal_text(text),
+            "Quoted Printable": self._probe_quoted_printable_text(text),
+            "Morse Code": self._probe_morse_text(text),
+            "ROT13": self._probe_rot13_text(text),
+            "URL": self._probe_url_text(text),
+            "Unicode Escape": self._probe_unicode_escape_text(text),
+            "HTML Entity": self._probe_html_entity_text(text),
+            "JSON Escape": self._probe_json_escape_text(text),
+        }
 
-        base32_probe = self._probe_base32_text(text)
-        if base32_probe["score"] > 0:
-            add_candidate("Base32", base32_probe["score"], base32_probe["reason"])
-
-        if compact and re.fullmatch(r"[A-Fa-f0-9]+", compact) and len(compact) >= 8 and len(compact) % 2 == 0:
-            hex_preview = self._decode_hex_text(compact)
-            reason = "输入几乎完全由十六进制字符组成，适合优先尝试 From Hex。"
-            if hex_preview:
-                reason = f"{reason} 试解码后可得到可读文本片段：{self._truncate_encoding_preview(hex_preview)}。"
-            add_candidate("Hex", 92 if hex_preview else 88, reason)
-
-        percent_hits = re.findall(r"%[0-9A-Fa-f]{2}", text)
-        if percent_hits:
-            decoded_url = unquote(text)
-            score = 84 if len(percent_hits) < 2 else 90
-            reason = f"输入中包含 {len(percent_hits)} 个 %xx 片段，典型于 URL 编码。"
-            if decoded_url != text:
-                reason = f"{reason} 试解码后片段为：{self._truncate_encoding_preview(decoded_url)}。"
-            add_candidate("URL", score, reason)
-
-        if "\\u" in text and re.search(r"\\u[0-9A-Fa-f]{4}", text):
-            unicode_preview = self._decode_unicode_escape_text(text)
-            reason = "输入包含明显的 \\uXXXX 转义序列。"
-            if unicode_preview:
-                reason = f"{reason} 试解码后片段为：{self._truncate_encoding_preview(unicode_preview)}。"
-            add_candidate("Unicode Escape", 91, reason)
-
-        if "&#" in text or "&amp;" in lowered or re.search(r"&[A-Za-z]{2,10};", text):
-            html_preview = html.unescape(text)
-            reason = "输入包含 HTML 实体编码特征。"
-            if html_preview != text:
-                reason = f"{reason} 试解码后片段为：{self._truncate_encoding_preview(html_preview)}。"
-            add_candidate("HTML Entity", 86, reason)
-
-        if re.search(r"\\[\"\\/bfnrt]", text) or re.search(r"\\u[0-9A-Fa-f]{4}", text):
-            json_preview = self._decode_json_escape_text(text)
-            reason = "输入中包含 JSON 风格的反斜杠转义序列。"
-            if json_preview and json_preview != text:
-                reason = f"{reason} 试解码后片段为：{self._truncate_encoding_preview(json_preview)}。"
-            add_candidate("JSON Escape", 78, reason)
+        for name in (
+            "Base45",
+            "Base58",
+            "Base62",
+            "Base64",
+            "Base85",
+            "Base32",
+            "Hex",
+            "Binary",
+            "Octal",
+            "Quoted Printable",
+            "Morse Code",
+            "ROT13",
+            "URL",
+            "Unicode Escape",
+            "HTML Entity",
+            "JSON Escape",
+        ):
+            probe = probe_map[name]
+            if int(probe["score"]) > 0:
+                add_candidate(name, int(probe["score"]), str(probe["reason"]))
 
         if not candidates:
-            add_candidate("UTF-8", 58, "当前更像是普通文本，优先按 UTF-8 或多字节字符集排查。")
-            add_candidate("GB18030", 52, "若出现中文乱码，GB18030/GBK 与 UTF-8 互转是常见原因。")
+            add_candidate("Unknown", 42, "未命中常见 CTF/取证编码特征，当前更像普通文本、明文问题或需要结合上下文继续判断。")
 
         if any(token in text for token in ["Ã", "ä", "å", "æ", "ï", "�"]):
-            add_candidate("UTF-8", 72, "检测到常见乱码特征，可能是 UTF-8 被按其他编码错误解读。")
-            add_candidate("GBK", 64, "中文场景下也可能是 GBK/GB18030 与 UTF-8 之间的误解码。")
-            warnings.append("当前更像是乱码排查场景，请结合原始来源和上下文在 CyberChef 中交叉验证。")
+            warnings.append("当前文本同时带有乱码特征；如果原始来源涉及字符集误解码，请额外按 UTF-8/GBK/GB18030/UTF-16 方向人工复核。")
 
         candidates = self._dedupe_encoding_candidates(candidates)
-        recipe_steps, decoded_layers = self._discover_encoding_recipe(text)
+        recipe_steps, decoded_layers = self._discover_encoding_recipe(text, max_depth=3)
 
+        base64_probe = probe_map["Base64"]
+        base32_probe = probe_map["Base32"]
+        base58_probe = probe_map["Base58"]
+        base62_probe = probe_map["Base62"]
         if base64_probe["score"] >= 78 and base32_probe["score"] >= 78 and abs(base64_probe["score"] - base32_probe["score"]) <= 10:
             warnings.append("当前同时命中 Base32 和 Base64 特征，请优先结合字符集差异与试解码结果人工复核。")
+        if base58_probe["score"] >= 70 and base62_probe["score"] >= 70 and abs(base58_probe["score"] - base62_probe["score"]) <= 8:
+            warnings.append("当前同时命中 Base58 与 Base62 特征，两者字母表不同但都可能成立，请结合字符集和试解码结果人工复核。")
 
         if not recipe_steps:
-            recommended_name = candidates[0]["name"] if candidates else "UTF-8"
+            recommended_name = candidates[0]["name"] if candidates else "Unknown"
             fallback_step = self._encoding_step_name(recommended_name)
             if fallback_step:
                 recipe_steps = [fallback_step]
-            elif recommended_name in {"UTF-8", "GBK", "GB18030", "UTF-16LE", "UTF-16BE"}:
-                recipe_steps = ["Decode text"]
-
-        recommended = candidates[0]["name"] if candidates else "UTF-8"
+        recommended = candidates[0]["name"] if candidates else "Unknown"
         if len(recipe_steps) >= 2:
             explanation = (
-                "检测到更像多层编码包装，已按字符集、padding 与试解码结果给出分层 CyberChef 配方。"
+                "检测到更像 2 到 3 层嵌套编码包装，已按字符集、分隔符和试解码结果给出分层 CyberChef 配方。"
             )
-        elif recommended in {"Base64", "Base32", "Hex", "URL", "Unicode Escape", "HTML Entity", "JSON Escape"}:
-            explanation = "已根据字符集、转义模式和试解码结果给出最可能的编码判断。"
+        elif recommended in {
+            "Base45",
+            "Base58",
+            "Base62",
+            "Base64",
+            "Base85",
+            "Base32",
+            "Hex",
+            "Binary",
+            "Octal",
+            "Quoted Printable",
+            "Morse Code",
+            "ROT13",
+            "URL",
+            "Unicode Escape",
+            "HTML Entity",
+            "JSON Escape",
+        }:
+            explanation = "已根据字符集、分隔符、padding、转义模式和试解码结果给出最可能的编码判断。"
         else:
-            explanation = "已根据当前文本特征给出最可能的编码或乱码排查方向。"
+            explanation = "未命中明显的 CTF/取证常见编码特征，当前更像普通文本或需要结合题目上下文继续判断。"
 
         return {
             "recommended_encoding": recommended,
@@ -1354,12 +1701,70 @@ class AIAnalysisService:
                 "trimmed_length": len(text),
                 "compact_length": len(compact),
                 "contains_whitespace": bool(re.search(r"\s", text)),
-                "base64_probe": {key: value for key, value in base64_probe.items() if key != "decoded_text"},
-                "base32_probe": {key: value for key, value in base32_probe.items() if key != "decoded_text"},
+                "probe_summary": {
+                    name: {key: value for key, value in probe.items() if key in {"score", "reason", "preview"} and value}
+                    for name, probe in probe_map.items()
+                    if int(probe["score"]) > 0
+                },
                 "decoded_layers": decoded_layers,
                 "candidate_summary": candidates[:5],
             },
         }
+
+    def _probe_base45_text(self, text: str) -> dict[str, Any]:
+        normalized = re.sub(r"[\r\n\t]+", "", text).strip()
+        if len(normalized) < 6 or any(char not in BASE45_ALPHABET for char in normalized):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 48
+        reasons = ["字符集落在 Base45 的常见字母表范围内。"]
+        if " " in normalized:
+            score += 4
+            reasons.append("包含 Base45 合法的空格字符。")
+        if re.search(r"[$%*+\-./:]", normalized):
+            score += 8
+            reasons.append("包含 Base45 常见的符号字符。")
+        if re.fullmatch(r"[A-Z ]+", normalized):
+            score -= 18
+            reasons.append("文本也可能只是普通大写字符串，因此需要依赖试解码进一步确认。")
+
+        decoded_text = self._decode_base45_text(normalized)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=56, strict_decoded=True)
+
+    def _probe_base58_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 8 or any(char not in BASE58_ALPHABET for char in compact):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 50
+        reasons = ["字符集满足 Bitcoin 风格 Base58 的常见取值范围。"]
+        if any(char.isdigit() for char in compact) and any(char.isalpha() for char in compact):
+            score += 8
+            reasons.append("同时包含数字和字母，接近常见 Base58 样本形态。")
+        if any(char in compact for char in "0OIl"):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        decoded_text = self._decode_base58_text(compact)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=58, strict_decoded=True)
+
+    def _probe_base62_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 10 or not compact.isalnum():
+            return {"score": 0, "reason": "", "decoded_text": None}
+        if compact.isalpha() or compact.isdigit():
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 36
+        reasons = ["输入是纯字母数字串，形式上可尝试 Base62。"]
+        if any(char.islower() for char in compact) and any(char.isupper() for char in compact) and any(char.isdigit() for char in compact):
+            score += 12
+            reasons.append("同时包含大小写字母和数字，更接近 Base62 的常见样本。")
+        else:
+            score -= 8
+            reasons.append("缺少大小写和数字的混合特征，因此 Base62 证据偏弱。")
+
+        decoded_text = self._decode_base62_text(compact)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=62, strict_decoded=True)
 
     def _probe_base64_text(self, text: str) -> dict[str, Any]:
         compact = re.sub(r"\s+", "", text)
@@ -1385,20 +1790,23 @@ class AIAnalysisService:
             reasons.append("字符集也高度接近 Base32，因此存在歧义。")
 
         decoded_text = self._decode_base64_text(compact)
-        if decoded_text:
-            score += 18
-            reasons.append(f"尝试 Base64 解码后得到可读片段：{self._truncate_encoding_preview(decoded_text)}。")
-            nested_hint = self._best_nested_encoding_hint(decoded_text)
-            if nested_hint:
-                score += 6
-                reasons.append(f"解码后一层仍明显像 {nested_hint}。")
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55)
 
-        return {
-            "score": max(0, min(100, score)),
-            "reason": " ".join(reasons),
-            "decoded_text": decoded_text,
-            "preview": self._truncate_encoding_preview(decoded_text) if decoded_text else "",
-        }
+    def _probe_base85_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 5:
+            return {"score": 0, "reason": "", "decoded_text": None}
+        if any(ord(char) < 33 or ord(char) > 117 for char in compact):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 44
+        reasons = ["字符集落在 Ascii85/Base85 默认的可打印范围内。"]
+        if re.search(r"[!\"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~]", compact):
+            score += 8
+            reasons.append("包含较多符号字符，接近 Base85 样本形态。")
+
+        decoded_text = self._decode_base85_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=58, strict_decoded=True)
 
     def _probe_base32_text(self, text: str) -> dict[str, Any]:
         compact = re.sub(r"\s+", "", text)
@@ -1422,22 +1830,140 @@ class AIAnalysisService:
             reasons.append("输入使用了小写形式，虽然仍可能是 Base32，但不如大写标准写法典型。")
 
         decoded_text = self._decode_base32_text(upper_text)
-        if decoded_text:
-            score += 18
-            reasons.append(f"尝试 Base32 解码后得到可读片段：{self._truncate_encoding_preview(decoded_text)}。")
-            nested_hint = self._best_nested_encoding_hint(decoded_text)
-            if nested_hint:
-                score += 6
-                reasons.append(f"解码后一层仍明显像 {nested_hint}。")
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55)
 
-        return {
-            "score": max(0, min(100, score)),
-            "reason": " ".join(reasons),
-            "decoded_text": decoded_text,
-            "preview": self._truncate_encoding_preview(decoded_text) if decoded_text else "",
-        }
+    def _probe_hex_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 8 or len(compact) % 2 != 0 or not re.fullmatch(r"[A-Fa-f0-9]+", compact):
+            return {"score": 0, "reason": "", "decoded_text": None}
 
-    def _discover_encoding_recipe(self, text: str, max_depth: int = 2) -> tuple[list[str], list[dict[str, Any]]]:
+        score = 78
+        reasons = ["输入几乎完全由十六进制字符组成，适合优先尝试 From Hex。"]
+        if any(char.isalpha() for char in compact) and any(char.isdigit() for char in compact):
+            score += 6
+            reasons.append("同时包含字母和数字，接近常见十六进制字节流。")
+
+        decoded_text = self._decode_hex_text(compact)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=54, strict_decoded=True)
+
+    def _probe_binary_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 24 or not re.fullmatch(r"[01]+", compact):
+            if not re.fullmatch(r"(?:[01]{8}(?:[\s,;:/\\|]+|$)){3,}", text.strip()):
+                return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 84
+        reasons = ["输入主要由 0 和 1 组成，且分组形态接近按字节表示的二进制文本。"]
+        if re.search(r"[\s,;:/\\|]", text):
+            score += 4
+            reasons.append("存在分隔符，符合常见二进制字节串写法。")
+
+        decoded_text = self._decode_binary_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_octal_text(self, text: str) -> dict[str, Any]:
+        compact = re.sub(r"\s+", "", text)
+        if len(compact) < 9 or not re.fullmatch(r"[0-7]+", compact):
+            if not re.fullmatch(r"(?:[0-7]{3}(?:[\s,;:/\\|]+|$)){3,}", text.strip()):
+                return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 74
+        reasons = ["输入由 0-7 数字组成，分组形态接近八进制字节表示。"]
+        if re.search(r"[\s,;:/\\|]", text):
+            score += 6
+            reasons.append("存在分隔符，符合常见八进制字节串写法。")
+
+        decoded_text = self._decode_octal_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_quoted_printable_text(self, text: str) -> dict[str, Any]:
+        if not (re.search(r"=[0-9A-Fa-f]{2}", text) or re.search(r"=\r?\n", text)):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 86
+        reasons = ["输入包含 =XX 或软换行，符合 Quoted Printable 的典型特征。"]
+        decoded_text = self._decode_quoted_printable_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_morse_text(self, text: str) -> dict[str, Any]:
+        normalized = text.strip()
+        if len(normalized) < 5 or not re.fullmatch(r"[.\-\s/|\\]+", normalized):
+            return {"score": 0, "reason": "", "decoded_text": None}
+        if len(re.findall(r"[.-]+", normalized)) < 3:
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 78
+        reasons = ["输入主要由点、横线和分隔符组成，接近 Morse Code / 摩斯电码。"]
+        if any(token in normalized for token in ["/", "|", "\\", "\n"]):
+            score += 6
+            reasons.append("包含单词分隔符，符合常见摩斯编码写法。")
+
+        decoded_text = self._decode_morse_text(normalized)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=58, strict_decoded=True)
+
+    def _probe_rot13_text(self, text: str) -> dict[str, Any]:
+        letters = re.findall(r"[A-Za-z]", text)
+        if len(letters) < 6 or not re.fullmatch(r"[A-Za-z0-9\s.,:;!?_/\-+'\"()\[\]{}]+", text):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        decoded_text = self._decode_rot13_text(text)
+        if not decoded_text or decoded_text == text:
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        source_hits = self._common_text_token_hits(text)
+        decoded_hits = self._common_text_token_hits(decoded_text)
+        if decoded_hits <= source_hits:
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 54
+        reasons = ["输入主要由英文字母和常见标点组成，可尝试 ROT13。"]
+        score += 16
+        reasons.append("ROT13 后出现更明显的常见英文或 CTF 关键词。")
+
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=68, strict_decoded=True)
+
+    def _probe_url_text(self, text: str) -> dict[str, Any]:
+        percent_hits = re.findall(r"%[0-9A-Fa-f]{2}", text)
+        if not percent_hits:
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 84 if len(percent_hits) < 2 else 90
+        reasons = [f"输入中包含 {len(percent_hits)} 个 %xx 片段，典型于 URL 编码。"]
+        decoded_text = unquote(text)
+        if decoded_text == text:
+            decoded_text = None
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_unicode_escape_text(self, text: str) -> dict[str, Any]:
+        if not re.search(r"(?:\\u|%u|U\+)[0-9A-Fa-f]{4,6}", text):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 88
+        reasons = ["输入包含明显的 Unicode Escape / \\uXXXX / %uXXXX / U+XXXX 片段。"]
+        decoded_text = self._decode_unicode_escape_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_html_entity_text(self, text: str) -> dict[str, Any]:
+        if not ("&#" in text or "&amp;" in text.lower() or re.search(r"&[A-Za-z]{2,10};", text)):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 82
+        reasons = ["输入包含 HTML 实体编码特征。"]
+        decoded_text = html.unescape(text)
+        if decoded_text == text:
+            decoded_text = None
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _probe_json_escape_text(self, text: str) -> dict[str, Any]:
+        if not (re.search(r"\\[\"\\/bfnrt]", text) or re.search(r"\\u[0-9A-Fa-f]{4}", text)):
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        score = 76
+        reasons = ["输入中包含 JSON 风格的反斜杠转义序列。"]
+        decoded_text = self._decode_json_escape_text(text)
+        return self._finalize_decoded_probe(score, reasons, decoded_text, min_reliability=55, strict_decoded=True)
+
+    def _discover_encoding_recipe(self, text: str, max_depth: int = 3) -> tuple[list[str], list[dict[str, Any]]]:
         steps: list[str] = []
         decoded_layers: list[dict[str, Any]] = []
         current_text = text.strip()
@@ -1466,42 +1992,42 @@ class AIAnalysisService:
 
     def _best_structured_encoding_probe(self, text: str) -> dict[str, Any] | None:
         candidates: list[dict[str, Any]] = []
-        base64_probe = self._probe_base64_text(text)
-        if base64_probe["score"] >= 80 and base64_probe.get("decoded_text"):
-            candidates.append({"name": "Base64", **base64_probe})
-
-        base32_probe = self._probe_base32_text(text)
-        if base32_probe["score"] >= 80 and base32_probe.get("decoded_text"):
-            candidates.append({"name": "Base32", **base32_probe})
-
-        compact = re.sub(r"\s+", "", text)
-        if compact and re.fullmatch(r"[A-Fa-f0-9]+", compact) and len(compact) >= 8 and len(compact) % 2 == 0:
-            decoded_hex = self._decode_hex_text(compact)
-            if decoded_hex:
-                candidates.append({"name": "Hex", "score": 88, "reason": "十六进制试解码成功。", "decoded_text": decoded_hex})
-
-        decoded_url = unquote(text)
-        if decoded_url != text and re.search(r"%[0-9A-Fa-f]{2}", text):
-            candidates.append({"name": "URL", "score": 86, "reason": "URL 解码后内容发生变化。", "decoded_text": decoded_url})
-
-        decoded_unicode = self._decode_unicode_escape_text(text)
-        if decoded_unicode and decoded_unicode != text and re.search(r"\\u[0-9A-Fa-f]{4}", text):
-            candidates.append({"name": "Unicode Escape", "score": 86, "reason": "Unicode 转义解码后内容发生变化。", "decoded_text": decoded_unicode})
-
-        decoded_html = html.unescape(text)
-        if decoded_html != text and ("&#" in text or "&amp;" in text.lower() or re.search(r"&[A-Za-z]{2,10};", text)):
-            candidates.append({"name": "HTML Entity", "score": 82, "reason": "HTML 实体解码后内容发生变化。", "decoded_text": decoded_html})
-
-        decoded_json = self._decode_json_escape_text(text)
-        if decoded_json and decoded_json != text and re.search(r"\\[\"\\/bfnrt]", text):
-            candidates.append({"name": "JSON Escape", "score": 80, "reason": "JSON 转义解码后内容发生变化。", "decoded_text": decoded_json})
+        for name, probe_func, threshold in (
+            ("Base45", self._probe_base45_text, 72),
+            ("Base58", self._probe_base58_text, 72),
+            ("Base62", self._probe_base62_text, 72),
+            ("Base64", self._probe_base64_text, 76),
+            ("Base85", self._probe_base85_text, 72),
+            ("Base32", self._probe_base32_text, 76),
+            ("Hex", self._probe_hex_text, 76),
+            ("Binary", self._probe_binary_text, 76),
+            ("Octal", self._probe_octal_text, 72),
+            ("Quoted Printable", self._probe_quoted_printable_text, 76),
+            ("Morse Code", self._probe_morse_text, 76),
+            ("ROT13", self._probe_rot13_text, 70),
+            ("URL", self._probe_url_text, 76),
+            ("Unicode Escape", self._probe_unicode_escape_text, 76),
+            ("HTML Entity", self._probe_html_entity_text, 72),
+            ("JSON Escape", self._probe_json_escape_text, 72),
+        ):
+            probe = probe_func(text)
+            if int(probe["score"]) >= threshold and probe.get("decoded_text"):
+                candidates.append({"name": name, **probe})
 
         if not candidates:
             return None
         return max(candidates, key=lambda item: int(item["score"]))
 
     def _best_nested_encoding_hint(self, text: str) -> str | None:
-        probe = self._best_structured_encoding_probe(text)
+        if getattr(self, "_disable_nested_probe_hints", False):
+            return None
+
+        previous_state = getattr(self, "_disable_nested_probe_hints", False)
+        self._disable_nested_probe_hints = True
+        try:
+            probe = self._best_structured_encoding_probe(text)
+        finally:
+            self._disable_nested_probe_hints = previous_state
         if not probe:
             return None
         return str(probe["name"])
@@ -1509,16 +2035,194 @@ class AIAnalysisService:
     def _encoding_step_name(self, encoding_name: str) -> str | None:
         normalized = encoding_name.strip().lower()
         mapping = {
+            "base45": "From Base45",
+            "base58": "From Base58",
+            "base62": "From Base62",
             "base64": "From Base64",
+            "base85": "From Base85",
             "base32": "From Base32",
             "hex": "From Hex",
+            "binary": "From Binary",
+            "octal": "From Octal",
+            "quoted printable": "From Quoted Printable",
+            "morse code": "From Morse Code",
+            "rot13": "ROT13",
             "url": "URL Decode",
             "unicode escape": "Unescape Unicode Characters",
             "html entity": "From HTML Entity",
+            "json escape": "Unescape Unicode Characters",
         }
         if normalized in {"utf-8", "utf8", "gbk", "gb18030", "utf-16", "utf-16le", "utf-16be"}:
             return "Decode text"
         return mapping.get(normalized)
+
+    def _finalize_decoded_probe(
+        self,
+        score: int,
+        reasons: list[str],
+        decoded_text: str | None,
+        *,
+        min_reliability: int = 55,
+        strict_decoded: bool = False,
+    ) -> dict[str, Any]:
+        if not decoded_text:
+            if strict_decoded:
+                return {"score": 0, "reason": "", "decoded_text": None}
+            return {
+                "score": max(0, min(100, score)),
+                "reason": " ".join(reasons),
+                "decoded_text": None,
+                "preview": "",
+            }
+
+        reliability = self._decoded_text_reliability(decoded_text)
+        nested_hint = None if getattr(self, "_disable_nested_probe_hints", False) else self._best_nested_encoding_hint(decoded_text)
+        if strict_decoded and reliability < min_reliability and not nested_hint:
+            return {"score": 0, "reason": "", "decoded_text": None}
+
+        if reliability >= min_reliability:
+            score += 18
+            reasons.append(f"试解码后得到可读片段：{self._truncate_encoding_preview(decoded_text)}。")
+        elif nested_hint:
+            score += 12
+            reasons.append(f"试解码后一层仍明显像 {nested_hint}。")
+        else:
+            score -= 12
+
+        return {
+            "score": max(0, min(100, score)),
+            "reason": " ".join(reasons),
+            "decoded_text": decoded_text,
+            "preview": self._truncate_encoding_preview(decoded_text),
+        }
+
+    def _decoded_text_reliability(self, value: str | None) -> int:
+        text = self._optional_text(value) or ""
+        if not text:
+            return 0
+
+        printable_ratio = self._text_printable_ratio(text)
+        if printable_ratio < 0.6:
+            return 0
+
+        ascii_ratio = sum(1 for char in text if char in "\n\r\t" or 32 <= ord(char) <= 126) / len(text)
+        score = int(printable_ratio * 45)
+        if ascii_ratio >= 0.85:
+            score += 10
+        if re.search(r"[\u4e00-\u9fff]", text):
+            score += 16
+        elif re.search(r"[A-Za-z]", text):
+            score += 12
+        if re.search(r"\s", text):
+            score += 8
+
+        token_hits = self._common_text_token_hits(text)
+        if token_hits >= 1:
+            score += 10
+        if token_hits >= 2:
+            score += 8
+
+        if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", text):
+            score -= 18
+        if "�" in text:
+            score -= 18
+        if len(text) >= 8 and not re.search(r"\s", text) and token_hits == 0 and ascii_ratio < 0.75:
+            score -= 8
+
+        return max(0, min(100, score))
+
+    def _common_text_token_hits(self, value: str) -> int:
+        lowered = value.lower()
+        tokens = (
+            "flag{",
+            "ctf{",
+            "hello",
+            "world",
+            "http",
+            "https",
+            "json",
+            "xml",
+            "html",
+            "select ",
+            "from ",
+            "where ",
+            "user",
+            "admin",
+            "login",
+            "cookie",
+            "token",
+            "password",
+            "hash",
+            "base64",
+            "md5",
+            "sha1",
+            "sha256",
+        )
+        return sum(1 for token in tokens if token in lowered)
+
+    def _decode_base_n_bytes(self, value: str, alphabet: str) -> bytes | None:
+        if not value:
+            return None
+
+        lookup = {char: index for index, char in enumerate(alphabet)}
+        number = 0
+        for char in value:
+            digit = lookup.get(char)
+            if digit is None:
+                return None
+            number = (number * len(alphabet)) + digit
+
+        if number == 0:
+            decoded = b""
+        else:
+            decoded = number.to_bytes((number.bit_length() + 7) // 8, "big")
+
+        leading_zero_char = alphabet[0]
+        leading_zero_count = len(value) - len(value.lstrip(leading_zero_char))
+        return (b"\x00" * leading_zero_count) + decoded
+
+    def _decode_base45_text(self, value: str) -> str | None:
+        normalized = re.sub(r"[\r\n\t]+", "", value).strip()
+        if not normalized or len(normalized) % 3 == 1:
+            return None
+
+        lookup = {char: index for index, char in enumerate(BASE45_ALPHABET)}
+        decoded = bytearray()
+        index = 0
+        try:
+            while index < len(normalized):
+                if index + 2 < len(normalized):
+                    number = (
+                        lookup[normalized[index]]
+                        + (lookup[normalized[index + 1]] * 45)
+                        + (lookup[normalized[index + 2]] * 45 * 45)
+                    )
+                    if number > 0xFFFF:
+                        return None
+                    decoded.extend(divmod(number, 256))
+                    index += 3
+                else:
+                    number = lookup[normalized[index]] + (lookup[normalized[index + 1]] * 45)
+                    if number > 0xFF:
+                        return None
+                    decoded.append(number)
+                    index += 2
+        except KeyError:
+            return None
+
+        return self._decode_bytes_to_text(bytes(decoded))
+
+    def _decode_base58_text(self, value: str) -> str | None:
+        decoded = self._decode_base_n_bytes(value, BASE58_ALPHABET)
+        if decoded is None:
+            return None
+        return self._decode_bytes_to_text(decoded)
+
+    def _decode_base62_text(self, value: str) -> str | None:
+        decoded = self._decode_base_n_bytes(value, BASE62_ALPHABET)
+        if decoded is None:
+            return None
+        return self._decode_bytes_to_text(decoded)
 
     def _decode_base64_text(self, value: str) -> str | None:
         normalized = value.replace("-", "+").replace("_", "/")
@@ -1526,6 +2230,13 @@ class AIAnalysisService:
         try:
             decoded = base64.b64decode(padded, validate=True)
         except (binascii.Error, ValueError):
+            return None
+        return self._decode_bytes_to_text(decoded)
+
+    def _decode_base85_text(self, value: str) -> str | None:
+        try:
+            decoded = base64.a85decode(value.encode("ascii"), adobe=False, ignorechars=b" \t\n\r\x0b")
+        except (UnicodeEncodeError, ValueError, binascii.Error):
             return None
         return self._decode_bytes_to_text(decoded)
 
@@ -1545,9 +2256,88 @@ class AIAnalysisService:
             return None
         return self._decode_bytes_to_text(decoded)
 
-    def _decode_unicode_escape_text(self, value: str) -> str | None:
+    def _decode_binary_text(self, value: str) -> str | None:
+        compact = re.sub(r"\s+", "", value)
+        groups: list[str]
+        if compact and re.fullmatch(r"[01]+", compact) and len(compact) % 8 == 0:
+            groups = [compact[index : index + 8] for index in range(0, len(compact), 8)]
+        else:
+            groups = re.findall(r"[01]{8}", value)
+            if not groups:
+                return None
+            cleaned = re.sub(r"[01]{8}", "", value)
+            if cleaned.strip().strip(",;:/\\|"):
+                return None
+
+        decoded = bytes(int(group, 2) for group in groups)
+        return self._decode_bytes_to_text(decoded)
+
+    def _decode_octal_text(self, value: str) -> str | None:
+        compact = re.sub(r"\s+", "", value)
+        groups: list[str]
+        if compact and re.fullmatch(r"[0-7]+", compact) and len(compact) % 3 == 0:
+            groups = [compact[index : index + 3] for index in range(0, len(compact), 3)]
+        else:
+            groups = re.findall(r"[0-7]{3}", value)
+            if not groups:
+                return None
+            cleaned = re.sub(r"[0-7]{3}", "", value)
+            if cleaned.strip().strip(",;:/\\|"):
+                return None
+
         try:
-            decoded = value.encode("utf-8").decode("unicode_escape")
+            decoded = bytes(int(group, 8) for group in groups)
+        except ValueError:
+            return None
+        return self._decode_bytes_to_text(decoded)
+
+    def _decode_quoted_printable_text(self, value: str) -> str | None:
+        try:
+            decoded = quopri.decodestring(value)
+        except ValueError:
+            return None
+        text = self._decode_bytes_to_text(decoded)
+        return text if text and text != value else None
+
+    def _decode_morse_text(self, value: str) -> str | None:
+        normalized = value.strip()
+        if not normalized:
+            return None
+
+        normalized = normalized.replace("\r\n", "\n")
+        normalized = normalized.replace("|", " / ")
+        normalized = normalized.replace("\\", " / ")
+        normalized = re.sub(r"\s*/\s*", " / ", normalized)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+
+        words = [chunk.strip() for chunk in normalized.split(" / ") if chunk.strip()]
+        if not words:
+            return None
+
+        decoded_words: list[str] = []
+        for word in words:
+            letters: list[str] = []
+            for token in word.split(" "):
+                char = MORSE_CODE_TABLE.get(token)
+                if char is None:
+                    return None
+                letters.append(char)
+            decoded_words.append("".join(letters))
+
+        decoded_text = " ".join(decoded_words)
+        return decoded_text if decoded_text else None
+
+    def _decode_rot13_text(self, value: str) -> str | None:
+        source = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        target = "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"
+        translated = value.translate(str.maketrans(source, target))
+        return translated if translated and translated != value else None
+
+    def _decode_unicode_escape_text(self, value: str) -> str | None:
+        normalized = re.sub(r"%u([0-9A-Fa-f]{4})", r"\\u\1", value)
+        normalized = re.sub(r"U\+([0-9A-Fa-f]{4,6})", lambda match: f"\\u{match.group(1)[-4:]}", normalized)
+        try:
+            decoded = normalized.encode("utf-8").decode("unicode_escape")
         except UnicodeDecodeError:
             return None
         return decoded if decoded and decoded != value else None
@@ -1640,8 +2430,10 @@ class AIAnalysisService:
         deduped.sort(key=lambda item: int(item["score"]), reverse=True)
         return deduped
 
-    def _normalize_hash_result_assist_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
-        primary_hash = str(payload.get("primary_hash") or payload.get("preferred_hash") or "SHA256").strip() or "SHA256"
+    def _normalize_hash_result_assist_payload(self, payload: dict[str, Any], raw_input: str | None = None) -> dict[str, Any]:
+        detected_primary = self._detect_hash_topic(raw_input or "")
+        default_primary = detected_primary if detected_primary != "HASH" else "SHA256"
+        primary_hash = str(payload.get("primary_hash") or payload.get("preferred_hash") or default_primary).strip() or default_primary
         confidence = str(payload.get("confidence") or "medium").strip().lower() or "medium"
         return {
             "summary": str(payload.get("summary") or "已根据当前哈希结果生成分析建议。"),
@@ -1725,8 +2517,247 @@ class AIAnalysisService:
         result["warnings"] = warnings
         return {"source": "fallback", "result": result}
 
+    def _build_timestamp_knowledge_fallback(self, raw_input: str) -> dict[str, Any]:
+        timestamp_type = self._detect_timestamp_topic(raw_input)
+        topic_map = {
+            "unix": "Unix 时间戳通常表示自 1970-01-01 00:00:00 UTC 起经过的秒数或其放大单位，常用于跨系统统一记录时间。",
+            "windows_filetime": "Windows FileTime 通常表示自 1601-01-01 00:00:00 UTC 起经过的 100 纳秒间隔，常见于 Windows 文件元数据和注册表时间字段。",
+            "chrome_webkit": "Chrome/WebKit 时间戳通常表示自 1601-01-01 00:00:00 UTC 起经过的微秒数，常见于浏览器历史、Cookie 等 SQLite 数据。",
+            "apple_absolute_time": "Apple Absolute Time 通常表示自 2001-01-01 00:00:00 UTC 起经过的秒数，常见于 Apple 生态的部分时间字段。",
+            "ios": "iOS 时间字段常见来源较杂，既可能是 Unix 秒/毫秒，也可能是 Cocoa/Apple Absolute Time，需要结合字段语义一起判断。",
+            "dotnet_ticks": ".NET Ticks 通常表示自公元 0001-01-01 00:00:00 起经过的 100 纳秒间隔，常见于 .NET 程序序列化或日志字段。",
+            "auto": "时间戳识别通常先看数值长度、时间起点、单位粒度和字段上下文，再判断属于 Unix、FileTime、WebKit 还是其他格式。",
+        }
+        return {
+            "timestamp": "",
+            "timestamp_type": timestamp_type,
+            "origin_timezone": "UTC",
+            "target_timezone": "Asia/Shanghai",
+            "explanation": topic_map.get(timestamp_type, topic_map["auto"]),
+            "confidence": "medium",
+            "warnings": ["当前回答基于通用知识，未结合具体时间戳原值做识别。"],
+        }
+
+    def _build_hashcat_knowledge_fallback(self, raw_input: str, current_form: dict[str, Any], default_wordlist_name: str | None) -> dict[str, Any]:
+        lowered = raw_input.lower()
+        hash_mode_map = {
+            "ntlm": 1000,
+            "sha512": 1700,
+            "sha-512": 1700,
+            "sha256": 1400,
+            "sha-256": 1400,
+            "sha1": 100,
+            "sha-1": 100,
+            "md5": 0,
+        }
+        hash_mode = next((mode for keyword, mode in hash_mode_map.items() if keyword in lowered), 0)
+
+        attack_mode = 0
+        explanation = "Hashcat 主要用于离线口令恢复，常见思路是先确认 hash 类型，再按字典、掩码或组合模式选择攻击方式。"
+        if any(keyword in lowered for keyword in ("combinator", "组合模式", "组合字典", "双字典", "两个字典")):
+            attack_mode = 1
+            explanation = "组合模式对应 attack_mode=1，适合把两个字典按前后顺序组合生成候选口令。"
+        elif ("前缀" in raw_input or "prefix" in lowered) and ("mask" in lowered or "掩码" in raw_input):
+            attack_mode = 7
+            explanation = "混合模式 7 表示“掩码前缀 + 字典”，适合前面补固定规则字符、后面接词典词。"
+        elif any(keyword in lowered for keyword in ("后缀", "suffix", "末尾", "尾部")) and ("mask" in lowered or "掩码" in raw_input):
+            attack_mode = 6
+            explanation = "混合模式 6 表示“字典 + 掩码后缀”，适合词典词后面再补几位数字或固定字符。"
+        elif "mask" in lowered or "掩码" in raw_input:
+            attack_mode = 3
+            explanation = "掩码模式对应 attack_mode=3，适合已知口令结构、长度和字符集的大致范围时做定向爆破。"
+
+        current_wordlist = self._optional_text(current_form.get("wordlist_path"))
+        return {
+            "hash_mode": hash_mode,
+            "attack_mode": attack_mode,
+            "wordlist_path": current_wordlist or default_wordlist_name,
+            "secondary_wordlist_path": None,
+            "mask": None,
+            "session_name": None,
+            "extra_args": [],
+            "explanation": explanation,
+            "confidence": "medium",
+            "warnings": ["当前回答基于通用 Hashcat 知识，未结合具体 hash 样本验证 hash_mode。"],
+        }
+
+    def _build_encoding_knowledge_fallback(self, raw_input: str) -> dict[str, Any]:
+        lowered = raw_input.lower()
+        if "base64" in lowered and "base32" in lowered and ("区别" in raw_input or "差异" in raw_input or "difference" in lowered):
+            return {
+                "recommended_encoding": "Base64",
+                "candidates": [
+                    {"name": "Base64", "score": 90, "confidence": "high", "reason": "问题明确在比较 Base64 与 Base32 的差异。"},
+                    {"name": "Base32", "score": 90, "confidence": "high", "reason": "问题明确在比较 Base64 与 Base32 的差异。"},
+                ],
+                "suggested_recipe": ["From Base64"],
+                "cyberchef_recipe": "From_Base64('A-Za-z0-9+/=',true,false)",
+                "cyberchef_input": raw_input.strip(),
+                "explanation": "Base64 与 Base32 都是编码表示而不是加密。Base64 字符集更宽，体积膨胀更小；Base32 字符集更受限，更适合对大小写或特殊字符敏感的场景。",
+                "warnings": ["当前回答基于通用知识，未结合具体编码样本做识别。"],
+            }
+
+        topic = self._detect_encoding_topic(raw_input)
+        explanation_map = {
+            "Base45": "Base45 使用 45 个可打印字符表示二进制数据，常见于二维码和受限字符集场景，效率通常介于 Base32 与 Base64 之间。",
+            "Base58": "Base58 会排除 0、O、I、l 这类易混淆字符，常见于加密货币地址、短链接或需要人工抄录的标识串。",
+            "Base62": "Base62 通常使用 0-9、A-Z、a-z 表示数据，常见于短链、邀请码和 CTF 题目，但不同实现对字母表和前导零处理可能不完全一致。",
+            "Base64": "Base64 是一种把二进制数据映射为可打印字符的表示方式，常用于传输和封装，不属于加密。",
+            "Base85": "Base85/Ascii85 用更大的字符表来表示二进制，体积通常比 Base64 更紧凑，但可读性和兼容性相对更差。",
+            "Base32": "Base32 同样是二进制到文本的表示方式，字符集更受限，常见为 A-Z、2-7 和 =，更适合对大小写或字符集敏感的场景。",
+            "Hex": "Hex 是把每个字节表示为两个十六进制字符的方式，可读性强，但体积通常比原始数据更大。",
+            "Binary": "Binary 通常把每个字节写成 8 位 0/1 串，教学和竞赛场景常见，但体积大、人工阅读成本高。",
+            "Octal": "Octal 会把字节表示成八进制数字，常见于旧式转义、脚本片段和部分 CTF 题目。",
+            "Quoted Printable": "Quoted Printable 常用于电子邮件正文传输，把不可打印字符写成 =XX 形式，同时尽量保留原有可读文本。",
+            "Morse Code": "Morse Code 通过点和横线表示字母数字，竞赛里常用于基础编码题或多层包装链路。",
+            "ROT13": "ROT13 是把英文字母循环平移 13 位的替换方式，本质上属于非常弱的字母轮换，不适合作为安全加密，只适合简单混淆或谜题。",
+            "URL": "URL 编码会把特殊字符转为 %xx 形式，常见于查询参数、表单和 Web 请求链路。",
+            "Unicode Escape": "Unicode Escape 常用 \\uXXXX 形式表示字符编码点，常见于脚本、JSON 片段和转义字符串。",
+            "HTML Entity": "HTML Entity 用于在 HTML 中安全表示特殊字符，例如 &amp;、&#x41; 等。",
+            "JSON Escape": "JSON Escape 使用反斜杠对引号、换行、Unicode 等字符做转义，常见于接口返回和日志字段。",
+            "Unknown": "当前问题像是在询问编码或表示形式的概念，但没有明确命中特定的 CTF/取证常见编码主题。",
+            "GBK": "GBK 是中文场景常见字符集，常见问题是与 UTF-8 相互误解码后出现乱码。",
+            "GB18030": "GB18030 是对中文字符覆盖更完整的多字节字符集，在本地取证和旧系统中比较常见。",
+            "UTF-16LE": "UTF-16LE 常以双字节形式存储文本，Windows 场景较常见，处理时要注意字节序和 BOM。",
+            "UTF-16BE": "UTF-16BE 与 UTF-16LE 的区别主要在字节序，误判字节序会导致明显乱码。",
+            "UTF-8": "UTF-8 是当前最常见的通用文本编码，兼容 ASCII，跨平台交换文本时通常优先考虑它。",
+        }
+        recipe_steps = []
+        step_name = self._encoding_step_name(topic)
+        if step_name:
+            recipe_steps = [step_name]
+        candidates: list[dict[str, Any]] = [
+            {
+                "name": topic,
+                "score": 92,
+                "confidence": "high",
+                "reason": "问题本身在询问该编码或表示形式的概念，用通用知识先回答更合适。",
+            }
+        ]
+        if topic == "Base64":
+            candidates.append({"name": "Base32", "score": 62, "confidence": "medium", "reason": "Base32 与 Base64 常被一起比较，主要差异在字符集和体积开销。"})
+        elif topic == "Base32":
+            candidates.append({"name": "Base64", "score": 62, "confidence": "medium", "reason": "Base64 与 Base32 常被一起比较，主要差异在字符集和体积开销。"})
+        elif topic == "Base58":
+            candidates.append({"name": "Base62", "score": 60, "confidence": "medium", "reason": "Base58 与 Base62 都是字母数字族编码，常见差异在字符表是否排除易混淆字符。"})
+        elif topic == "Base62":
+            candidates.append({"name": "Base58", "score": 60, "confidence": "medium", "reason": "Base62 与 Base58 都常见于短串表示，主要差异在字母表和实现约定。"})
+        elif topic == "Quoted Printable":
+            candidates.append({"name": "Base64", "score": 54, "confidence": "medium", "reason": "Quoted Printable 与 Base64 都常见于邮件场景，但侧重点分别是可读性和压缩效率。"})
+        elif topic == "Morse Code":
+            candidates.append({"name": "ROT13", "score": 40, "confidence": "low", "reason": "两者都常出现在基础编码题中，但原理完全不同。"})
+
+        return {
+            "recommended_encoding": topic,
+            "candidates": candidates,
+            "suggested_recipe": recipe_steps,
+            "cyberchef_recipe": self._build_cyberchef_recipe_from_suggestions(recipe_steps, topic),
+            "cyberchef_input": raw_input.strip(),
+            "explanation": explanation_map.get(topic, explanation_map["Unknown"]),
+            "warnings": ["当前回答基于通用知识，未结合具体编码样本做识别。"],
+        }
+
+    def _build_hash_knowledge_fallback(self, raw_input: str) -> dict[str, Any]:
+        lowered = raw_input.lower()
+        if "md5" in lowered and "sha256" in lowered and ("区别" in raw_input or "差异" in raw_input or "difference" in lowered):
+            return {
+                "summary": "MD5 和 SHA256 都是消息摘要算法，但 SHA256 在抗碰撞和完整性校验稳健性方面明显更强。",
+                "primary_hash": "SHA256",
+                "findings": [
+                    "MD5 长度更短、计算更快，但已存在成熟碰撞风险，更适合作为兼容性补充而不是唯一强校验值。",
+                    "SHA256 兼顾强度与通用性，在取证完整性校验、样本比对和交接留痕里通常更适合作为主哈希。",
+                ],
+                "recommendations": [
+                    "如果流程允许，优先记录 SHA256，并把 MD5 作为兼容旧平台或旧情报库的补充摘要。",
+                    "在报告和证据交接中，不要只保留 MD5，最好至少保留一个强哈希值。",
+                    "若后续要落到具体案件，再结合文件来源、大小和获取时间一起分析会更准确。",
+                ],
+                "warnings": ["当前回答基于通用知识，未结合具体文件哈希结果。"],
+                "confidence": "medium",
+            }
+
+        topic = self._detect_hash_topic(raw_input)
+        summary_map = {
+            "MD5": "MD5 是 128 位消息摘要算法，计算速度快，但已存在成熟碰撞风险，不适合作为安全强度依赖的唯一依据。",
+            "SHA1": "SHA1 曾广泛用于完整性校验，但也已存在实际碰撞风险，更适合作为兼容性补充而不是唯一强校验值。",
+            "SHA256": "SHA256 属于 SHA-2 系列，当前仍是取证完整性校验和跨平台样本比对中更稳妥的主摘要选择之一。",
+            "SHA512": "SHA512 输出更长，抗碰撞能力更强，但在部分平台或流程里通用性不如 SHA256。",
+            "SM3": "SM3 是国产密码摘要算法，适合需要满足特定合规要求或国密体系兼容的场景。",
+            "HASH": "哈希值本质上是把任意长度输入映射成固定长度摘要，常用于完整性校验、样本索引和证据留存。",
+        }
+        findings_map = {
+            "MD5": [
+                "MD5 仍可用于快速去重、旧系统兼容和历史情报索引，但不建议单独承担高强度完整性证明。",
+                "在取证报告中，MD5 更适合作为兼容性补充，通常应同时记录 SHA256 一类更强摘要。",
+            ],
+            "SHA1": [
+                "SHA1 在旧生态里兼容性较好，但由于碰撞风险，通常不应作为唯一可信校验值。",
+                "如果历史平台只支持 SHA1，建议同时补充 SHA256 或 SHA512 提高证据稳健性。",
+            ],
+            "SHA256": [
+                "SHA256 兼顾强度与通用性，适合在报告、交接和复算核验中作为主哈希记录。",
+                "同一文件在不同环节重复计算 SHA256 并比对，可有效验证传输和导出过程是否被篡改。",
+            ],
+            "SHA512": [
+                "SHA512 输出更长，适合对碰撞安全边界要求更高的校验场景。",
+                "若对接平台默认只接受 SHA256，可保留 SHA512 作为补充而不是替代。",
+            ],
+            "SM3": [
+                "SM3 在部分合规或国产化环境中更有现实价值，适合与现有国密体系联动使用。",
+                "若案件流程同时涉及国际平台和国密平台，可并行保留 SM3 与 SHA256 提高兼容性。",
+            ],
+            "HASH": [
+                "哈希常见用途包括完整性校验、样本去重、情报检索和证据链固定。",
+                "哈希不是加密，不能从摘要直接还原原文，但也不能把它当成对文件内容真实性的唯一背景解释。",
+            ],
+        }
+        return {
+            "summary": summary_map.get(topic, summary_map["HASH"]),
+            "primary_hash": topic if topic != "HASH" else "SHA256",
+            "findings": findings_map.get(topic, findings_map["HASH"]),
+            "recommendations": [
+                "如果后续要落到具体案件，请同时记录文件名、大小、获取时间和至少一个强哈希值。",
+                "若涉及跨平台比对或外部情报检索，优先准备 SHA256，再按目标平台需要补充其他摘要。",
+                "一旦有具体哈希结果，再结合案件背景、样本库和交接链路做针对性分析会更准确。",
+            ],
+            "warnings": ["当前回答基于通用知识，未结合具体文件哈希结果。"],
+            "confidence": "medium",
+        }
+
+    def _build_sqlite_knowledge_fallback(self, raw_input: str) -> dict[str, Any]:
+        lowered = raw_input.lower()
+        summary = "SQLite 是轻量级嵌入式数据库，常见于浏览器、聊天软件、移动应用和本地客户端取证场景。"
+        schema_notes = [
+            "取证时通常先看表名、字段名、主键、时间字段和是否存在 BLOB/JSON 等复合内容。",
+            "高价值表名常见关键词包括 user、account、message、history、event、login、session、file、attach。",
+        ]
+        if "wal" in lowered:
+            summary = "SQLite 的 WAL 文件记录了未合并回主库的写前日志，取证时常能补到主库里暂未体现的近期变更。"
+            schema_notes.insert(0, "如果同时拿到 .db、-wal、-shm，分析时要把三者一起考虑，避免遗漏近期写入。")
+        elif "索引" in raw_input or "index" in lowered:
+            summary = "SQLite 索引主要用于加速查询，本身未必直接存新数据，但能帮助判断字段关联和检索路径。"
+        elif "主键" in raw_input or "primary key" in lowered:
+            summary = "SQLite 主键通常用于唯一标识记录，取证时可借此做去重、关联和增量比对。"
+
+        return {
+            "summary": summary,
+            "highlighted_tables": [],
+            "current_table_name": None,
+            "focus_fields": [],
+            "schema_notes": schema_notes,
+            "recommendations": [
+                "拿到具体数据库后，先浏览表结构，再按时间字段、账号字段、消息字段和路径字段做优先级排序。",
+                "如果同时存在主库、WAL 和缓存文件，建议一并保留并交叉验证时间线。",
+                "有了具体表和字段后，我可以继续帮你判断优先导出哪些表、哪些字段最有价值。",
+            ],
+            "warnings": ["当前回答基于通用 SQLite 取证经验，未结合具体数据库结构。"],
+        }
+
     def _assist_timestamp_fallback(self, raw_input: str) -> dict[str, Any]:
         text = raw_input.strip()
+        if self._is_knowledge_question(text) and not re.search(r"[-+]?\d+(?:\.\d+)?", text):
+            return self._build_timestamp_knowledge_fallback(text)
+
         warnings: list[str] = []
         number_match = re.search(r"[-+]?\d+(?:\.\d+)?", text)
         timestamp = number_match.group(0) if number_match else ""
@@ -1787,6 +2818,15 @@ class AIAnalysisService:
         default_wordlist_name, _ = self._resolve_hashcat_default_wordlist(normalized_context)
         current_secondary_wordlist = self._optional_text(current_form.get("secondary_wordlist_path"))
         explicit_wordlists = re.findall(r"(?:[A-Za-z]:\\|/)[^\r\n\"']+", text)
+
+        if self._is_knowledge_question(text):
+            result = self._build_hashcat_knowledge_fallback(text, current_form, default_wordlist_name)
+            if sample_lines or sample_hashes:
+                result["warnings"] = self._merge_text_lists(
+                    list(result.get("warnings") or []),
+                    ["当前存在样本或表单上下文，但本次问题属于知识问答，返回的是通用说明而不是针对样本的最终配置。"],
+                )
+            return result
 
         if "ntlm" in lowered:
             hash_mode = 1000
@@ -1850,6 +2890,8 @@ class AIAnalysisService:
         }
 
     def _assist_encoding_fallback(self, raw_input: str) -> dict[str, Any]:
+        if self._is_knowledge_question(raw_input):
+            return self._build_encoding_knowledge_fallback(raw_input)
         return self._analyze_encoding_input(raw_input)
 
     def _assist_hash_result_fallback(self, raw_input: str, context: dict[str, Any]) -> dict[str, Any]:
@@ -1859,18 +2901,30 @@ class AIAnalysisService:
         recommendations: list[str] = []
         confidence = "medium"
 
+        if self._is_knowledge_question(raw_input):
+            result = self._build_hash_knowledge_fallback(raw_input)
+            extra_findings: list[str] = []
+            extra_warnings: list[str] = []
+            if isinstance(hash_result, dict):
+                file_name = str(hash_result.get("file_name") or "当前文件")
+                algorithms = hash_result.get("algorithms") or []
+                algorithms_upper = [str(item).upper() for item in algorithms if str(item).strip()]
+                if algorithms_upper:
+                    extra_findings.append(f"当前文件“{file_name}”已经生成这些摘要：{'、'.join(algorithms_upper)}，后续可继续结合实际结果落地分析。")
+                extra_warnings.append("本次先回答通用知识；如果你想落到当前文件，我可以继续结合现有摘要结果细化用途建议。")
+            else:
+                extra_warnings.append("未检测到 hash_result 上下文，因此本次先回答通用知识与通用做法。")
+            result["findings"] = self._merge_text_lists(list(result.get("findings") or []), extra_findings)
+            result["warnings"] = self._merge_text_lists(list(result.get("warnings") or []), extra_warnings)
+            return result
+
         if not isinstance(hash_result, dict):
-            return {
-                "summary": "当前还没有可供分析的哈希结果。请先上传文件并完成哈希计算，再让我结合结果继续分析。",
-                "primary_hash": "SHA256",
-                "findings": [],
-                "recommendations": [
-                    "先生成至少一个强哈希值，建议优先保留 SHA256。",
-                    "完成哈希计算后，再结合样本库或情报平台做比对。",
-                ],
-                "warnings": ["未检测到 hash_result 上下文。"],
-                "confidence": "low",
-            }
+            result = self._build_hash_knowledge_fallback(raw_input)
+            result["warnings"] = self._merge_text_lists(
+                list(result.get("warnings") or []),
+                ["未检测到 hash_result 上下文，因此本次先回答通用知识与通用做法。"],
+            )
+            return result
 
         file_name = str(hash_result.get("file_name") or "当前文件")
         file_size = hash_result.get("file_size")
@@ -1923,19 +2977,29 @@ class AIAnalysisService:
         export_result = context.get("table_export")
         full_export = context.get("full_export")
 
+        if self._is_knowledge_question(raw_input):
+            result = self._build_sqlite_knowledge_fallback(raw_input)
+            extra_notes: list[str] = []
+            extra_warnings: list[str] = []
+            if isinstance(browser, dict):
+                database_name = str(browser.get("database_name") or "当前数据库")
+                tables = browser.get("tables") or []
+                table_count = len(tables) if isinstance(tables, list) else 0
+                extra_notes.append(f"当前数据库“{database_name}”已加载，表数量约 {table_count} 张，后续可继续结合具体表结构做落地分析。")
+                extra_warnings.append("本次先回答通用 SQLite 知识；如果你继续问具体表或字段，我会结合当前数据库上下文继续分析。")
+            else:
+                extra_warnings.append("未检测到 sqlite browser 上下文，因此本次先回答通用 SQLite 分析思路。")
+            result["schema_notes"] = self._merge_text_lists(list(result.get("schema_notes") or []), extra_notes)
+            result["warnings"] = self._merge_text_lists(list(result.get("warnings") or []), extra_warnings)
+            return result
+
         if not isinstance(browser, dict):
-            return {
-                "summary": "当前还没有数据库结构上下文。请先上传 SQLite 文件并加载结构，再让我结合表和字段继续分析。",
-                "highlighted_tables": [],
-                "current_table_name": None,
-                "focus_fields": [],
-                "schema_notes": [],
-                "recommendations": [
-                    "先加载数据库结构，确认有哪些表和字段。",
-                    "优先预览行数较多或表名带有 user、message、history、event 等关键词的表。",
-                ],
-                "warnings": ["未检测到 sqlite browser 上下文。"],
-            }
+            result = self._build_sqlite_knowledge_fallback(raw_input)
+            result["warnings"] = self._merge_text_lists(
+                list(result.get("warnings") or []),
+                ["未检测到 sqlite browser 上下文，因此本次先回答通用 SQLite 分析思路。"],
+            )
+            return result
 
         tables_raw = browser.get("tables") or []
         tables = [item for item in tables_raw if isinstance(item, dict)]
@@ -2078,10 +3142,234 @@ class AIAnalysisService:
             return "medium"
         return "low"
 
+    def _is_knowledge_question(self, text: str) -> bool:
+        normalized = text.strip().lower()
+        if not normalized:
+            return False
+        patterns = (
+            r"什么是",
+            r"是什么",
+            r"啥是",
+            r"是啥",
+            r"是什么意思",
+            r"含义",
+            r"原理",
+            r"作用",
+            r"用途",
+            r"区别",
+            r"差异",
+            r"怎么理解",
+            r"解释一下",
+            r"介绍一下",
+            r"科普",
+            r"为什么",
+            r"为何",
+            r"优缺点",
+            r"如何选择",
+            r"怎么用",
+            r"如何使用",
+            r"what is",
+            r"what's",
+            r"difference",
+            r"meaning",
+            r"usage",
+            r"use case",
+        )
+        return any(re.search(pattern, normalized) for pattern in patterns)
+
+    def _detect_hash_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if "sha512" in lowered or "sha-512" in lowered:
+            return "SHA512"
+        if "sha256" in lowered or "sha-256" in lowered:
+            return "SHA256"
+        if "sha1" in lowered or "sha-1" in lowered:
+            return "SHA1"
+        if "sm3" in lowered:
+            return "SM3"
+        if "md5" in lowered:
+            return "MD5"
+        return "HASH"
+
+    def _detect_timestamp_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if "filetime" in lowered or "windows" in lowered:
+            return "windows_filetime"
+        if "webkit" in lowered or "chrome" in lowered:
+            return "chrome_webkit"
+        if "apple absolute" in lowered or "cocoa" in lowered:
+            return "apple_absolute_time"
+        if "ios" in lowered:
+            return "ios"
+        if "tick" in lowered or ".net" in lowered:
+            return "dotnet_ticks"
+        if "unix" in lowered or "epoch" in lowered:
+            return "unix"
+        return "auto"
+
+    def _detect_encoding_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if "base45" in lowered:
+            return "Base45"
+        if "base58" in lowered:
+            return "Base58"
+        if "base62" in lowered:
+            return "Base62"
+        if "base85" in lowered or "ascii85" in lowered:
+            return "Base85"
+        if "base32" in lowered:
+            return "Base32"
+        if "base64" in lowered:
+            return "Base64"
+        if "hex" in lowered or "十六进制" in text:
+            return "Hex"
+        if "binary" in lowered or "二进制" in text:
+            return "Binary"
+        if "octal" in lowered or "八进制" in text:
+            return "Octal"
+        if "quoted printable" in lowered or "quoted-printable" in lowered or re.search(r"\bqp\b", lowered):
+            return "Quoted Printable"
+        if "morse" in lowered or "moss" in lowered or "摩斯" in text:
+            return "Morse Code"
+        if "rot13" in lowered or "凯撒" in text:
+            return "ROT13"
+        if "url" in lowered and ("编码" in text or "decode" in lowered or "转义" in text):
+            return "URL"
+        if "unicode" in lowered or "\\u" in text or "%u" in lowered or "u+" in lowered:
+            return "Unicode Escape"
+        if "html entity" in lowered or "html 实体" in text or "实体编码" in text:
+            return "HTML Entity"
+        if "json" in lowered and ("escape" in lowered or "转义" in text):
+            return "JSON Escape"
+        if "gb18030" in lowered:
+            return "GB18030"
+        if "gbk" in lowered:
+            return "GBK"
+        if "utf-16be" in lowered:
+            return "UTF-16BE"
+        if "utf-16le" in lowered or "utf16" in lowered:
+            return "UTF-16LE"
+        if "utf-8" in lowered or "utf8" in lowered:
+            return "UTF-8"
+        return "Unknown"
+
+    def _extract_encoding_topics(self, text: str) -> list[str]:
+        lowered = text.lower()
+        topics: list[str] = []
+        topic_rules = [
+            ("Base45", ("base45",)),
+            ("Base58", ("base58",)),
+            ("Base62", ("base62",)),
+            ("Base64", ("base64",)),
+            ("Base85", ("base85", "ascii85")),
+            ("Base32", ("base32",)),
+            ("Hex", ("hex", "十六进制")),
+            ("Binary", ("binary", "二进制")),
+            ("Octal", ("octal", "八进制")),
+            ("Quoted Printable", ("quoted printable", "quoted-printable")),
+            ("Morse Code", ("morse", "moss", "摩斯")),
+            ("ROT13", ("rot13", "凯撒")),
+            ("URL", ("url", "url 编码", "url编码")),
+            ("Unicode Escape", ("unicode escape", "unicode", "\\u", "%u", "u+")),
+            ("HTML Entity", ("html entity", "html 实体", "实体编码")),
+            ("JSON Escape", ("json escape", "json 转义")),
+            ("GBK", ("gbk",)),
+            ("GB18030", ("gb18030",)),
+            ("UTF-16LE", ("utf-16le", "utf16le")),
+            ("UTF-16BE", ("utf-16be", "utf16be")),
+            ("UTF-8", ("utf-8", "utf8")),
+        ]
+        for topic, patterns in topic_rules:
+            if topic == "Quoted Printable" and re.search(r"\bqp\b", lowered):
+                topics.append(topic)
+                continue
+            if any(pattern in lowered or pattern in text for pattern in patterns):
+                topics.append(topic)
+        return topics
+
+    def _detect_hashcat_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if any(keyword in lowered for keyword in ("combinator", "组合模式", "双字典", "两个字典", "组合字典")):
+            return "attack_mode_1"
+        if "mask" in lowered or "掩码" in text:
+            return "mask_mode"
+        if "rule" in lowered or "规则" in text:
+            return "rules"
+        if "wordlist" in lowered or "字典" in text:
+            return "wordlist"
+        if "hash mode" in lowered or "hash_mode" in lowered or "hash类型" in text or "hash 类型" in text:
+            return "hash_mode"
+        return "hashcat"
+
+    def _detect_sqlite_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if "wal" in lowered:
+            return "wal"
+        if "主键" in text or "primary key" in lowered:
+            return "primary_key"
+        if "索引" in text or "index" in lowered:
+            return "index"
+        if "schema" in lowered or "结构" in text:
+            return "schema"
+        if "表" in text or "table" in lowered:
+            return "table"
+        return "sqlite"
+
+    def _detect_log_topic(self, text: str) -> str:
+        lowered = text.lower()
+        if "error" in lowered and "warning" in lowered:
+            return "error_warning_difference"
+        if "error" in lowered:
+            return "error"
+        if "warning" in lowered or "warn" in lowered:
+            return "warning"
+        if "时间戳" in text or "timestamp" in lowered:
+            return "timestamp"
+        if "ip" in lowered or "网络" in text:
+            return "ip"
+        return "log_analysis"
+
     def _analyze_with_local_fallback(self, parsed_result: ParsedLogResponse, question: str) -> AIAnalysisResult:
         findings: list[FindingItem] = []
         timeline_summary: list[str] = []
         recommendations: list[str] = []
+
+        if self._is_knowledge_question(question):
+            lowered_question = question.lower()
+            concept_title = "日志分析相关概念说明"
+            concept_explanation = "日志分析的核心是把事件级原始记录还原为可验证的时间线，再判断哪些异常只是运行噪声，哪些异常足以支持取证结论。"
+            if "error" in lowered_question and "warning" in lowered_question:
+                concept_title = "Error 与 Warning 的区别"
+                concept_explanation = "Error 通常表示已经发生失败、异常或功能受阻；Warning 更常表示风险提示、配置偏差或潜在问题，未必已经造成实际失败。"
+            elif "error" in lowered_question:
+                concept_title = "Error 日志的含义"
+                concept_explanation = "Error 通常表示执行过程已经出现失败或异常，需要结合前后文确认失败点、影响范围和是否可复现。"
+            elif "warning" in lowered_question or "warn" in lowered_question:
+                concept_title = "Warning 日志的含义"
+                concept_explanation = "Warning 更多是风险信号而不是直接定性结论，常用于提示配置异常、资源紧张、重试或潜在前置故障。"
+            elif "时间戳" in question or "timestamp" in lowered_question:
+                concept_title = "日志时间戳的作用"
+                concept_explanation = "时间戳用于把分散事件串成可验证时间线，是日志取证里判断因果顺序、横向关联和复现轨迹的关键锚点。"
+            elif "ip" in lowered_question or "网络" in question:
+                concept_title = "日志中的网络线索"
+                concept_explanation = "日志里的 IP、端口和主机名更适合与时间、账号、动作类型交叉验证，单独出现时通常只代表线索，不直接等于恶意结论。"
+
+            findings.append(
+                FindingItem(
+                    title=concept_title,
+                    evidence=[
+                        f"当前日志共 {parsed_result.total_lines} 行。",
+                        f"error 相关 {parsed_result.level_counts.error} 行，warning 相关 {parsed_result.level_counts.warning} 行。",
+                    ],
+                    explanation=concept_explanation,
+                )
+            )
+            recommendations.extend(
+                [
+                    "先把通用概念和当前日志统计分开理解，避免把概念性判断直接当成案件结论。",
+                    "如果你想继续落到当前日志，可再追问具体片段、时间线、IP 或某条异常的证据意义。",
+                ]
+            )
 
         if parsed_result.has_timestamp:
             timeline_summary.append("日志中检测到时间戳，可结合时间维度进一步复原事件顺序。")
@@ -2091,7 +3379,7 @@ class AIAnalysisService:
         timeline_summary.append(f"本次共解析 {parsed_result.total_lines} 行日志。")
         timeline_summary.append(f"基础解析策略来源：{parsed_result.parse_strategy.source}。")
 
-        if parsed_result.level_counts.error > 0:
+        if parsed_result.level_counts.error > 0 and not findings:
             findings.append(
                 FindingItem(
                     title="检测到错误级别日志",
@@ -2100,7 +3388,7 @@ class AIAnalysisService:
                 )
             )
 
-        if parsed_result.level_counts.warning > 0:
+        if parsed_result.level_counts.warning > 0 and not self._is_knowledge_question(question):
             findings.append(
                 FindingItem(
                     title="检测到告警级别日志",
@@ -2109,7 +3397,7 @@ class AIAnalysisService:
                 )
             )
 
-        if parsed_result.possible_ips:
+        if parsed_result.possible_ips and not self._is_knowledge_question(question):
             findings.append(
                 FindingItem(
                     title="日志中存在网络地址线索",
@@ -2136,13 +3424,19 @@ class AIAnalysisService:
             ]
         )
 
-        summary = (
-            f"围绕问题“{question}”进行了规则化研判。"
-            f"日志共 {parsed_result.total_lines} 行，"
-            f"error 相关 {parsed_result.level_counts.error} 行，"
-            f"warning 相关 {parsed_result.level_counts.warning} 行。"
-            "当前结论来自本地回退分析，适合作为初步筛查结果。"
-        )
+        if self._is_knowledge_question(question):
+            summary = (
+                f"已先回答与问题“{question}”相关的日志分析通用知识，并附带当前日志的基础统计作为参考。"
+                f"当前日志共 {parsed_result.total_lines} 行，error 相关 {parsed_result.level_counts.error} 行，warning 相关 {parsed_result.level_counts.warning} 行。"
+            )
+        else:
+            summary = (
+                f"围绕问题“{question}”进行了规则化研判。"
+                f"日志共 {parsed_result.total_lines} 行，"
+                f"error 相关 {parsed_result.level_counts.error} 行，"
+                f"warning 相关 {parsed_result.level_counts.warning} 行。"
+                "当前结论来自本地回退分析，适合作为初步筛查结果。"
+            )
 
         return AIAnalysisResult(
             summary=summary,

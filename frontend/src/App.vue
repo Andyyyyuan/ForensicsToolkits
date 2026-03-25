@@ -72,6 +72,7 @@ interface ChatMessage {
   result?: Record<string, unknown> | null
   reasoning: string
   showReasoning: boolean
+  reasoningVisibilityTouched: boolean
   progress: number
   progressLabel: string
   status: AssistantMessageStatus
@@ -207,6 +208,8 @@ let hashcatTimer: number | null = null
 let messageSeed = 0
 let scrollFrame: number | null = null
 let scrollForcePending = false
+let assistantLastScrollTop = 0
+let ignoreAssistantScrollEvent = false
 
 const shellStyle = computed(() => ({
   '--left-rail-width': leftCollapsed.value ? '52px' : '280px',
@@ -429,6 +432,7 @@ function buildWelcomeMessage(toolId: ToolId): ChatMessage {
     createdAt: Date.now(),
     reasoning: '',
     showReasoning: false,
+    reasoningVisibilityTouched: false,
     progress: 100,
     progressLabel: '已就绪',
     status: 'ready',
@@ -480,6 +484,43 @@ function summarizeToolResult(toolId: ToolId, result: Record<string, unknown>): s
     return sanitizeDisplayText((result as unknown as EncodingAssistResult).explanation || '编码识别已完成。')
   }
   return '处理完成。'
+}
+
+function isKnowledgeQuestionInput(value: string): boolean {
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) {
+    return false
+  }
+  const patterns = [
+    /什么是/,
+    /是什么/,
+    /啥是/,
+    /是啥/,
+    /是什么意思/,
+    /含义/,
+    /原理/,
+    /作用/,
+    /用途/,
+    /区别/,
+    /差异/,
+    /怎么理解/,
+    /解释一下/,
+    /介绍一下/,
+    /科普/,
+    /为什么/,
+    /为何/,
+    /优缺点/,
+    /如何选择/,
+    /怎么用/,
+    /如何使用/,
+    /what is/,
+    /what's/,
+    /difference/,
+    /meaning/,
+    /usage/,
+    /use case/,
+  ]
+  return patterns.some((pattern) => pattern.test(normalized))
 }
 
 function buildLocalToolReply(toolId: ToolId, userInput: string): string {
@@ -669,9 +710,25 @@ function handleAssistantScroll(): void {
   const node = assistantScrollRef.value
   if (!node) {
     assistantAutoScroll.value = true
+    assistantLastScrollTop = 0
     return
   }
-  assistantAutoScroll.value = isAssistantScrollNearBottom(node)
+  const currentScrollTop = node.scrollTop
+  const nearBottom = isAssistantScrollNearBottom(node)
+
+  if (!ignoreAssistantScrollEvent && currentScrollTop < assistantLastScrollTop - 2) {
+    assistantAutoScroll.value = false
+  } else if (nearBottom) {
+    assistantAutoScroll.value = true
+  }
+
+  assistantLastScrollTop = currentScrollTop
+}
+
+function handleAssistantWheel(event: WheelEvent): void {
+  if (event.deltaY < 0) {
+    assistantAutoScroll.value = false
+  }
 }
 
 async function scrollChatToBottom(force = false): Promise<void> {
@@ -679,10 +736,16 @@ async function scrollChatToBottom(force = false): Promise<void> {
   const node = assistantScrollRef.value
   if (!node) return
   if (!force && !assistantAutoScroll.value) return
+  ignoreAssistantScrollEvent = true
   node.scrollTop = node.scrollHeight
+  assistantLastScrollTop = node.scrollTop
   if (force) {
     assistantAutoScroll.value = true
   }
+  window.requestAnimationFrame(() => {
+    ignoreAssistantScrollEvent = false
+    handleAssistantScroll()
+  })
 }
 
 function scheduleScrollChatToBottom(force = false): void {
@@ -707,6 +770,7 @@ function createUserMessage(toolId: ToolId, content: string): ChatMessage {
     createdAt: Date.now(),
     reasoning: '',
     showReasoning: false,
+    reasoningVisibilityTouched: false,
     progress: 100,
     progressLabel: '已发送',
     status: 'ready',
@@ -724,11 +788,17 @@ function createAssistantMessage(toolId: ToolId, mode: AiMode): ChatMessage {
     mode,
     reasoning: '',
     showReasoning: mode === 'reasoner',
+    reasoningVisibilityTouched: false,
     progress: mode === 'reasoner' ? 12 : 20,
     progressLabel: mode === 'reasoner' ? '已提交推理请求' : '已提交请求',
     status: 'streaming',
     result: null,
   }
+}
+
+function toggleMessageReasoning(message: ChatMessage): void {
+  message.reasoningVisibilityTouched = true
+  message.showReasoning = !message.showReasoning
 }
 
 function handleAiComposerKeydown(event: KeyboardEvent): void {
@@ -1264,6 +1334,7 @@ function shouldRefreshHashcatStatus(): boolean {
 async function runAiForActiveTool(): Promise<void> {
   const toolId = activeToolId.value
   const config = activeAiConfig.value
+  const requestMode = aiMode.value
 
   ensureThread(toolId)
   assistantNotice.value = ''
@@ -1282,19 +1353,19 @@ async function runAiForActiveTool(): Promise<void> {
 
   const thread = chatThreads[toolId]
   const userMessage = createUserMessage(toolId, userInput)
-  const assistantMessage = reactive(createAssistantMessage(toolId, aiMode.value)) as ChatMessage
+  const assistantMessage = reactive(createAssistantMessage(toolId, requestMode)) as ChatMessage
   thread.push(userMessage, assistantMessage)
   aiInputs[toolId] = ''
   aiBusy.value = true
   assistantAutoScroll.value = true
   scheduleScrollChatToBottom(true)
 
-    let targetUnits: string[] = []
-    let typingTimer: number | null = null
-    const clearTypewriterTimer = () => {
-      if (typingTimer !== null) {
-        window.clearTimeout(typingTimer)
-        typingTimer = null
+  let targetUnits: string[] = []
+  let typingTimer: number | null = null
+  const clearTypewriterTimer = () => {
+    if (typingTimer !== null) {
+      window.clearTimeout(typingTimer)
+      typingTimer = null
     }
   }
 
@@ -1311,7 +1382,7 @@ async function runAiForActiveTool(): Promise<void> {
     const payload = {
       tool_id: toolId,
       user_input: userInput,
-      mode: aiMode.value,
+      mode: requestMode,
       file_id: fileId,
       context: currentAiContext(toolId),
     }
@@ -1368,7 +1439,9 @@ async function runAiForActiveTool(): Promise<void> {
     const syncAssistantDraft = () => {
       if (pendingReasoning) {
         assistantMessage.reasoning = normalizeStreamingText(pendingReasoning)
-        assistantMessage.showReasoning = aiMode.value === 'reasoner'
+        if (assistantMessage.mode === 'reasoner' && !assistantMessage.reasoningVisibilityTouched) {
+          assistantMessage.showReasoning = true
+        }
       }
 
       const draftContent = currentDraftContent()
@@ -1388,7 +1461,7 @@ async function runAiForActiveTool(): Promise<void> {
     await streamToolAi(payload, {
       onEvent: (event: ToolAiStreamEvent) => {
         if (event.type === 'reasoning') {
-          if (aiMode.value === 'reasoner') {
+          if (assistantMessage.mode === 'reasoner') {
             pendingReasoning = event.full_text || `${pendingReasoning}${event.delta}`
             assistantMessage.progress = Math.max(assistantMessage.progress, 36)
             assistantMessage.progressLabel = '正在推理'
@@ -1412,10 +1485,15 @@ async function runAiForActiveTool(): Promise<void> {
           assistantMessage.mode = event.mode
           assistantMessage.result = event.result
           assistantMessage.reasoning = sanitizeDisplayText(event.reasoning || assistantMessage.reasoning)
+          if (assistantMessage.reasoning && assistantMessage.mode === 'reasoner' && !assistantMessage.reasoningVisibilityTouched) {
+            assistantMessage.showReasoning = true
+          }
           syncAssistantContentQueue(summarizeToolResult(toolId, event.result))
           assistantMessage.progress = 100
           assistantMessage.progressLabel = event.source === 'fallback' ? '已完成（回退）' : '已完成'
-          applyAiResult(toolId, event.result)
+          if (!isKnowledgeQuestionInput(userInput)) {
+            applyAiResult(toolId, event.result)
+          }
         }
       },
     })
@@ -2235,7 +2313,7 @@ onBeforeUnmount(() => {
           <div class="assistant-toolbar-copy">切换工具会自动切换提示词与聊天线程。</div>
         </div>
 
-        <div ref="assistantScrollRef" class="assistant-chat-scroll" @scroll="handleAssistantScroll">
+        <div ref="assistantScrollRef" class="assistant-chat-scroll" @scroll="handleAssistantScroll" @wheel.passive="handleAssistantWheel">
           <div v-for="message in currentThread" :key="message.id" class="chat-row" :class="message.role">
             <div class="chat-bubble" :class="[message.role, { hint: message.isHint, error: message.status === 'error' }]">
               <div class="chat-meta">
@@ -2256,7 +2334,7 @@ onBeforeUnmount(() => {
               </div>
 
               <div v-if="message.reasoning" class="reasoning-block">
-                <button type="button" class="thought-toggle" @click="message.showReasoning = !message.showReasoning">
+                <button type="button" class="thought-toggle" @click="toggleMessageReasoning(message)">
                   {{ message.showReasoning ? '收起思考流' : '展开思考流' }}
                 </button>
                 <pre v-if="message.showReasoning" class="code-box compact thought-box mt-2">{{ message.reasoning }}</pre>

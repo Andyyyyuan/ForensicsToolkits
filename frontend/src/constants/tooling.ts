@@ -57,9 +57,9 @@ export const AI_TOOL_CONFIG: Record<ToolId, AiToolConfig> = {
   encoding_converter: {
     supported: true,
     title: '编码识别助手',
-    placeholder: '输入待识别的原始文本、乱码样本、Hex/Base64 片段或转义字符串。',
-    defaultInput: '请先判断这段内容是否存在多层编码，区分 Base32 与 Base64，并给出可直接用于 CyberChef URL 的 recipe。',
-    welcome: '直接把乱码样本、可疑编码串、Hex、Base32、Base64 或转义文本发给我。我会给出候选、置信度、分层依据和 CyberChef 配方。',
+    placeholder: '输入 Base45/Base58/Base62/Base64/Base85、Hex、Binary、Octal、Morse、QP 等样本。',
+    defaultInput: '请按 CTF 和取证竞赛常见编码优先判断，自动尝试 2 到 3 层嵌套转换，并给出可直接用于 CyberChef URL 的 recipe。',
+    welcome: '直接把 Base45/Base58/Base62/Base64/Base85、Hex、Binary、Octal、Morse、Quoted Printable、URL 或转义文本发给我。我会优先按 CTF/取证常见编码识别，并尝试嵌套解码。',
   },
   hash_tool: {
     supported: true,
