@@ -88,6 +88,11 @@ const globalNotice = ref('')
 const activeToolId = ref<ToolId>(DEFAULT_TOOL_ID)
 const leftCollapsed = ref(false)
 const rightCollapsed = ref(false)
+const leftSidebarWidth = ref(280)
+const rightSidebarWidth = ref(392)
+const activeResizeSide = ref<'left' | 'right' | null>(null)
+const resizeStartX = ref(0)
+const resizeStartWidth = ref(0)
 
 const aiMode = ref<AiMode>('chat')
 const aiStatus = ref<AiStatusResponse | null>(null)
@@ -211,9 +216,20 @@ let scrollForcePending = false
 let assistantLastScrollTop = 0
 let ignoreAssistantScrollEvent = false
 
+const LEFT_COLLAPSED_WIDTH = 52
+const RIGHT_COLLAPSED_WIDTH = 46
+const LEFT_MIN_WIDTH = 220
+const LEFT_MAX_WIDTH = 420
+const RIGHT_MIN_WIDTH = 320
+const RIGHT_MAX_WIDTH = 560
+const MAIN_MIN_WIDTH = 520
+const SIDEBAR_RESIZER_WIDTH = 12
+
 const shellStyle = computed(() => ({
-  '--left-rail-width': leftCollapsed.value ? '52px' : '280px',
-  '--right-rail-width': rightCollapsed.value ? '46px' : '392px',
+  '--left-rail-width': `${leftCollapsed.value ? LEFT_COLLAPSED_WIDTH : leftSidebarWidth.value}px`,
+  '--right-rail-width': `${rightCollapsed.value ? RIGHT_COLLAPSED_WIDTH : rightSidebarWidth.value}px`,
+  '--left-resizer-width': `${leftCollapsed.value ? 0 : SIDEBAR_RESIZER_WIDTH}px`,
+  '--right-resizer-width': `${rightCollapsed.value ? 0 : SIDEBAR_RESIZER_WIDTH}px`,
 }))
 
 const filteredTools = computed(() => {
@@ -403,14 +419,102 @@ function triggerBrowserDownload(path: string, fileName?: string): void {
 }
 
 function toggleLeftSidebar(): void {
+  stopSidebarResize()
   leftCollapsed.value = !leftCollapsed.value
+  if (!leftCollapsed.value) {
+    clampSidebarWidths()
+  }
 }
 
 function toggleRightSidebar(): void {
+  stopSidebarResize()
   rightCollapsed.value = !rightCollapsed.value
   if (!rightCollapsed.value) {
+    clampSidebarWidths()
     void scrollChatToBottom()
   }
+}
+
+function sidebarBounds(side: 'left' | 'right'): { min: number; max: number } {
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1440
+  const otherWidth =
+    side === 'left'
+      ? rightCollapsed.value
+        ? RIGHT_COLLAPSED_WIDTH
+        : rightSidebarWidth.value
+      : leftCollapsed.value
+        ? LEFT_COLLAPSED_WIDTH
+        : leftSidebarWidth.value
+
+  const configuredMin = side === 'left' ? LEFT_MIN_WIDTH : RIGHT_MIN_WIDTH
+  const configuredMax = side === 'left' ? LEFT_MAX_WIDTH : RIGHT_MAX_WIDTH
+  const resizerAllowance =
+    (leftCollapsed.value ? 0 : SIDEBAR_RESIZER_WIDTH) + (rightCollapsed.value ? 0 : SIDEBAR_RESIZER_WIDTH)
+  const viewportMax = viewportWidth - otherWidth - MAIN_MIN_WIDTH - resizerAllowance
+  const max = Math.max(configuredMin, Math.min(configuredMax, viewportMax))
+  return {
+    min: configuredMin,
+    max,
+  }
+}
+
+function clampSidebarWidth(side: 'left' | 'right', width: number): number {
+  const bounds = sidebarBounds(side)
+  return Math.min(bounds.max, Math.max(bounds.min, width))
+}
+
+function clampSidebarWidths(): void {
+  if (!leftCollapsed.value) {
+    leftSidebarWidth.value = clampSidebarWidth('left', leftSidebarWidth.value)
+  }
+  if (!rightCollapsed.value) {
+    rightSidebarWidth.value = clampSidebarWidth('right', rightSidebarWidth.value)
+  }
+}
+
+function handleWindowResize(): void {
+  if (window.innerWidth <= 1220) {
+    stopSidebarResize()
+    return
+  }
+  clampSidebarWidths()
+}
+
+function beginSidebarResize(side: 'left' | 'right', event: PointerEvent): void {
+  if (window.innerWidth <= 1220) {
+    return
+  }
+  event.preventDefault()
+  activeResizeSide.value = side
+  resizeStartX.value = event.clientX
+  resizeStartWidth.value = side === 'left' ? leftSidebarWidth.value : rightSidebarWidth.value
+  document.body.classList.add('is-resizing-sidebar')
+  window.addEventListener('pointermove', handleSidebarResize)
+  window.addEventListener('pointerup', stopSidebarResize)
+  window.addEventListener('pointercancel', stopSidebarResize)
+}
+
+function handleSidebarResize(event: PointerEvent): void {
+  if (!activeResizeSide.value) {
+    return
+  }
+  const deltaX = event.clientX - resizeStartX.value
+  if (activeResizeSide.value === 'left') {
+    leftSidebarWidth.value = clampSidebarWidth('left', resizeStartWidth.value + deltaX)
+    return
+  }
+  rightSidebarWidth.value = clampSidebarWidth('right', resizeStartWidth.value - deltaX)
+}
+
+function stopSidebarResize(): void {
+  if (!activeResizeSide.value) {
+    return
+  }
+  activeResizeSide.value = null
+  document.body.classList.remove('is-resizing-sidebar')
+  window.removeEventListener('pointermove', handleSidebarResize)
+  window.removeEventListener('pointerup', stopSidebarResize)
+  window.removeEventListener('pointercancel', stopSidebarResize)
 }
 
 function pickActiveTool(toolId: string): void {
@@ -1569,9 +1673,12 @@ onMounted(async () => {
   }, 5000)
   assistantAutoScroll.value = true
   scheduleScrollChatToBottom(true)
+  clampSidebarWidths()
+  window.addEventListener('resize', handleWindowResize)
 })
 
 onBeforeUnmount(() => {
+  stopSidebarResize()
   if (hashcatTimer !== null) {
     window.clearInterval(hashcatTimer)
   }
@@ -1579,11 +1686,19 @@ onBeforeUnmount(() => {
     window.cancelAnimationFrame(scrollFrame)
     scrollFrame = null
   }
+  window.removeEventListener('resize', handleWindowResize)
 })
 </script>
 
 <template>
-  <div class="toolbox-shell" :style="shellStyle">
+  <div
+    class="toolbox-shell"
+    :class="{
+      'is-resizing-left': activeResizeSide === 'left',
+      'is-resizing-right': activeResizeSide === 'right',
+    }"
+    :style="shellStyle"
+  >
     <aside class="toolbox-sidebar" :class="{ collapsed: leftCollapsed }">
       <button type="button" class="rail-toggle rail-toggle-left" :aria-label="leftCollapsed ? '展开工具栏' : '收起工具栏'" @click="toggleLeftSidebar">
         {{ leftCollapsed ? '›' : '‹' }}
@@ -1641,6 +1756,15 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </aside>
+
+    <div
+      v-show="!leftCollapsed"
+      class="sidebar-resize-handle left"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="调整左侧栏宽度"
+      @pointerdown="beginSidebarResize('left', $event)"
+    />
 
     <main class="toolbox-main">
       <header v-if="activeTool" class="workspace-header">
@@ -2285,6 +2409,15 @@ onBeforeUnmount(() => {
         </div>
       </section>
     </main>
+
+    <div
+      v-show="!rightCollapsed"
+      class="sidebar-resize-handle right"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="调整 AI 侧栏宽度"
+      @pointerdown="beginSidebarResize('right', $event)"
+    />
 
     <aside class="assistant-sidebar" :class="{ collapsed: rightCollapsed }">
       <button type="button" class="rail-toggle rail-toggle-right" :aria-label="rightCollapsed ? '展开 AI 侧栏' : '收起 AI 侧栏'" @click="toggleRightSidebar">
